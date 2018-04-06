@@ -65,7 +65,7 @@ public class MultiBufferTest {
         double diffusion = 0.0001;
         double viscosity = .0000003;
         double dt = .3;
-        double dConst = .1;
+        double dConst = .5;
         double timeScale = 1;
 
         double peakDensity = 0;
@@ -144,7 +144,7 @@ public class MultiBufferTest {
                         for (int x = 0; x < solver.edgeLength; x++) {
                             for (int y = 0; y < solver.edgeLength; y++) {
 
-                                double density = solver.density[solver.INDEX(x, y)];
+                                double density = solver.density.get(x, y);
 
                                 double densityScaled = density / densityScaleFactor;
 

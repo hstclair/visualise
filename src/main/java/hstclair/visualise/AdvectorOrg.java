@@ -1,6 +1,6 @@
 package hstclair.visualise;
 
-public class AdvectorOrg implements Advector {
+public class AdvectorOrg  {
 
     FluidSolver solver;
     int edgeLength;
@@ -15,7 +15,6 @@ public class AdvectorOrg implements Advector {
         this.rowSize = edgeLength + 2;
     }
 
-    @Override
     public void advect(int b, double[] d, double[] d0, double[] du, double[] dv, double dt) {
         double dt0;
 
@@ -60,12 +59,12 @@ public class AdvectorOrg implements Advector {
                 double t1 = y - j0;
                 double t0 = 1 - t1;
 
-                int index00 = solver.I(i0, j0);
-                int index01 = solver.I(i0, j1);
-                int index10 = solver.I(i1, j0);
-                int index11 = solver.I(i1, j1);
+//                int index00 = solver.I(i0, j0);
+//                int index01 = solver.I(i0, j1);
+//                int index10 = solver.I(i1, j0);
+//                int index11 = solver.I(i1, j1);
 
-                d[index] = s0 * (t0 * d0[index00] + t1 * d0[index01]) + s1 * (t0 * d0[index10] + t1 * d0[index11]);
+//                d[index] = s0 * (t0 * d0[index00] + t1 * d0[index01]) + s1 * (t0 * d0[index10] + t1 * d0[index11]);
 //        return new Advector(index, index00, index01, index10, index11, s0, t0, s1, t1);
 //        return new int[] { index00, index01, index10, index11};
 //        d[index] = s0 * (t0 * d0[I(i0, j0)] + t1 * d0[I(i0, j1)]) +
