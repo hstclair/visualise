@@ -17,7 +17,7 @@ public class FluidSolver
 {
     Random random = new Random(System.currentTimeMillis());
 
-    VorticitySolver vorticitySolver;
+    VorticitySolver vorticityConfinementSolver;
     LinearSolver linearSolver;
     Projector projector;
     Boundary boundary;
@@ -67,26 +67,6 @@ public class FluidSolver
         this.row = n+2;
         size = (n + 2) * (n + 2);
 
-        advector = new AdvectorNew();
-
-        boundary = new CyclicalYBoundary();
-
-        buoyancySolver = new AlexanderMcKinzieBuoyancySolverImpl(edgeLength, row);
-        vorticitySolver = new AlexanderMcKinzieVorticityConfinementSolver(edgeLength, 1);
-        linearSolver = new GaussSeidelLinearSolver(repeats, boundary);
-        projector = new AlexanderMcKinzieProjector(linearSolver, boundary);
-
-        reset();
-    }
-
-
-    /**
-     * Reset the datastructures.
-     * We use 1d arrays for speed.
-     **/
-
-    public void reset()
-    {
         density = new DoubleGrid(edgeLength);
         densityOld = new DoubleGrid(edgeLength);
         u = new DoubleGrid(edgeLength);
@@ -94,6 +74,15 @@ public class FluidSolver
         v = new DoubleGrid(edgeLength);
         vOld = new DoubleGrid(edgeLength);
         curl = new DoubleGrid(edgeLength);
+
+        advector = new AdvectorNew();
+
+        boundary = new CyclicalYBoundary(u);
+
+        buoyancySolver = new AlexanderMcKinzieBuoyancySolverImpl(edgeLength, row);
+        vorticityConfinementSolver = new AlexanderMcKinzieVorticityConfinementSolver(edgeLength, 1);
+        linearSolver = new GaussSeidelLinearSolver(repeats, boundary);
+        projector = new AlexanderMcKinzieProjector(linearSolver, boundary);
     }
 
 
@@ -114,9 +103,9 @@ public class FluidSolver
     }
 
     void clearArrays() {
-        uOld.clear();
-        vOld.clear();
-        densityOld.clear();
+//        uOld.clear();
+//        vOld.clear();
+//        densityOld.clear();
     }
 
     void computeDensityStatistics() {
@@ -145,7 +134,7 @@ public class FluidSolver
         v.add(vOld, dt);
 
         // add in vorticity confinement force
-        vorticitySolver.solve(uOld, vOld, u, v);
+        vorticityConfinementSolver.solve(uOld, vOld, u, v);
         u.add(uOld, dt);
         v.add(vOld, dt);
 
@@ -173,6 +162,9 @@ public class FluidSolver
 
         // make an incompressible field
         projector.project(u, v, uOld, vOld);
+
+        uOld.clear();
+        vOld.clear();
     }
 
 
@@ -190,6 +182,8 @@ public class FluidSolver
         swapD();
 
         advect(0, density, densityOld, u, v, dt);
+
+        densityOld.clear();
     }
 
     /**

@@ -23,9 +23,9 @@ public class GaussSeidelLinearSolver implements LinearSolver {
 
     public void solve(int b, DoubleGrid output, DoubleGrid input, double a, double c) {
 
-        for (int count = 0; count < repeats; count++) {
+        GaussSeidelFieldGenerator fieldGenerator = new GaussSeidelFieldGenerator(input, a, c);
 
-            GaussSeidelFieldGenerator fieldGenerator = new GaussSeidelFieldGenerator(input, a, c);
+        for (int count = 0; count < repeats; count++) {
 
             output.eachInner(fieldGenerator::generate);
 

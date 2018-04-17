@@ -5,23 +5,53 @@ import hstclair.visualise.grid.DoubleGrid;
 
 public class CyclicalYBoundary implements Boundary {
 
+    int leftBoundaryInitial;
+    int leftEdgeInitial;
+    int rightBoundaryInitial;
+    int rightEdgeInitial;
+    int topBoundaryInitial;
+    int topEdgeInitial;
+    int bottomBoundaryInitial;
+    int bottomEdgeInitial;
+
+
+    public CyclicalYBoundary(DoubleGrid x) {
+
+        leftBoundaryInitial = 0;
+        leftEdgeInitial = 1;
+        rightBoundaryInitial = x.edgeLength + 1;
+        rightEdgeInitial = x.edgeLength;
+        topBoundaryInitial = 1;
+        topEdgeInitial = x.rowLength + 1;
+        bottomBoundaryInitial = x.rowLength * x.edgeLength + 1;
+        bottomEdgeInitial = bottomBoundaryInitial - x.edgeLength;
+    }
+
     public void apply(DoubleGrid x) {
 
-        int leftBoundary = 0;
-        int rightBoundary = x.edgeLength + 1;
-        int topBoundary = 0;
-        int topEdge = x.edgeLength + 1;
-        int bottomBoundary = (x.edgeLength + 1) * x.edgeLength + 1;
-        int bottomEdge = bottomBoundary - x.edgeLength;
+        int topBoundary = topBoundaryInitial;
+//        int topEdge = topEdgeInitial;
+        int bottomBoundary = bottomBoundaryInitial;
+//        int bottomEdge = bottomEdgeInitial;
 
-        for (int i = 0; i <= x.edgeLength + 1; i++) {
-//            topBoundary++;
-            topEdge++;
+        int leftBoundary = leftBoundaryInitial;
+        int rightBoundary = rightBoundaryInitial;
+
+        for (int i = 0; i < x.edgeLength; i++) {
+            topBoundary++;
+//            topEdge++;
             bottomBoundary++;
 //            bottomEdge++;
+            rightBoundary++;
+            leftBoundary++;
 
-//            x[topBoundary] = x[I(i, edgeLength)];
-            x.grid[bottomBoundary] = x.grid[topEdge];
+//            x.grid[bottomBoundary] = 0;
+//            x.grid[topBoundary] = 0;
+//            x.grid[leftBoundary] = 0;
+//            x.grid[rightBoundary] = 0;
+
+//            x.grid[bottomBoundary] = x.grid[topEdge];
+//            x.grid[topBoundary] = x.grid[bottomEdge];
         }
     }
 }

@@ -21,16 +21,17 @@ public class CurlFieldGenerator {
      *
      **/
 
-    public double computeCurl(double uLeft, double uRight, double vDown, double vUp)
-    {
-
-        double uDiff = uRight - uLeft;
-        double vDiff = vDown - vUp;
-
-        return (uDiff - vDiff) * .5;
-    }
+//    public double computeCurl(double uLeft, double uRight, double vDown, double vUp)
+//    {
+//
+//        double uDiff = uRight - uLeft;
+//        double vDiff = vDown - vUp;
+//
+//        return (uDiff - vDiff) * .5;
+//    }
 
     public void generate(Indexor indexor) {
-        indexor.set(computeCurl(indexor.left(uField), indexor.right(uField), indexor.above(vField), indexor.below(vField)));
+//        indexor.set(computeCurl(indexor.left(uField), indexor.right(uField), indexor.above(vField), indexor.below(vField)));
+        indexor.set((indexor.lateralGradient(uField) - indexor.verticalGradient(vField)) * .5);
     }
 }

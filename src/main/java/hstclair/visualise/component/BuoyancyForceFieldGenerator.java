@@ -6,16 +6,16 @@ import hstclair.visualise.grid.Indexor;
 public class BuoyancyForceFieldGenerator {
 
     DoubleGrid density;
-    double q;
-    double p;
+    double buoyancyConst;
+    double buoyancyScale;
 
-    public BuoyancyForceFieldGenerator(DoubleGrid density, double ambientTemperature, double a, double b) {
+    public BuoyancyForceFieldGenerator(DoubleGrid density, double ambientTemperature, double masslikeConstant, double thermalExpansionCoefficientlikeConstant) {
         this.density = density;
-        q = b*ambientTemperature;
-        p = a - b;
+        buoyancyConst = thermalExpansionCoefficientlikeConstant*ambientTemperature;
+        buoyancyScale = masslikeConstant - thermalExpansionCoefficientlikeConstant;
     }
 
     public void generate(Indexor indexor) {
-        indexor.set(p * indexor.get(density) + q);
+        indexor.set(buoyancyScale * indexor.get(density) + buoyancyConst);
     }
 }

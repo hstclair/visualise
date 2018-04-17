@@ -177,8 +177,8 @@ public class Indexor {
 
     public double get(DoubleGrid source, double xOffset, double yOffset) {
 
-        double xSrc = x - xOffset;
-        double ySrc = y - yOffset;
+        double xSrc = x + xOffset;
+        double ySrc = y + yOffset;
 
         if (xSrc > rightBoundary)
             xSrc = rightBoundary;

@@ -61,7 +61,7 @@ public class MultiBufferTest {
 
     public MultiBufferTest(int numBuffers, GraphicsDevice device) {
 
-        int edgeLength = 256;
+        int edgeLength = 128;
         double diffusion = 0.0001;
         double viscosity = .0000003;
         double dt = .3;
@@ -141,22 +141,24 @@ public class MultiBufferTest {
                         double densityScaleFactor = meanMax / cycles / 2;
 
 
-                        for (int x = 0; x < solver.edgeLength; x++) {
-                            for (int y = 0; y < solver.edgeLength; y++) {
+                        solver.density.eachInner(indexor -> image.setRGB(indexor.x, indexor.y, greyscaleToRGB((int) (255 * Math.min(1, Math.max(0, 1 - indexor.get() / densityScaleFactor))))));
 
-                                double density = solver.density.get(x, y);
-
-                                double densityScaled = density / densityScaleFactor;
-
-                                if (1 - densityScaled < 0)
-                                    densityScaled = .99;
-
-                                if (1 - densityScaled > 1)
-                                    densityScaled = 0;
-
-                                image.setRGB(x, y, greyscaleToRGB( (int)(255 * Math.min(1, Math.max(0, 1 - densityScaled)))));
-                            }
-                        }
+//                        for (int x = 0; x < solver.edgeLength; x++) {
+//                            for (int y = 0; y < solver.edgeLength; y++) {
+//
+//                                double density = solver.density.get(x, y);
+//
+//                                double densityScaled = density / densityScaleFactor;
+//
+//                                if (1 - densityScaled < 0)
+//                                    densityScaled = .99;
+//
+//                                if (1 - densityScaled > 1)
+//                                    densityScaled = 0;
+//
+//                                image.setRGB(x, y, greyscaleToRGB( (int)(255 * Math.min(1, Math.max(0, 1 - densityScaled)))));
+//                            }
+//                        }
 
 
                         g.drawImage(image, 10, 10, (int) (solver.edgeLength * displayScale), (int) (solver.edgeLength * displayScale), null);
