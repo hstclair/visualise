@@ -15,6 +15,11 @@ public class AdvectorOrg  {
         this.rowSize = edgeLength + 2;
     }
 
+
+    public int getEdgeLength() {
+        return edgeLength;
+    }
+
     public void advect(int b, double[] d, double[] d0, double[] du, double[] dv, double dt) {
         double dt0;
 

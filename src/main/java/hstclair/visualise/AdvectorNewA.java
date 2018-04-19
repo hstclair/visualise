@@ -4,15 +4,13 @@ import hstclair.visualise.grid.DoubleGrid;
 
 public class AdvectorNewA implements Advector {
 
-    FluidSolver solver;
     int edgeLength;
     int size;
     int rowSize;
     int[] rowOffset;
 
-    public AdvectorNewA(FluidSolverA solver, int edgeLength, int size) {
+    public AdvectorNewA(int edgeLength, int size) {
 
-        this.solver = solver;
         this.edgeLength = edgeLength;
         this.size = size;
         this.rowSize = edgeLength + 2;
@@ -24,7 +22,11 @@ public class AdvectorNewA implements Advector {
 
             rowOffset[i] = offset * rowSize;
         }
+    }
 
+    @Override
+    public int getEdgeLength() {
+        return edgeLength;
     }
 
     public void advect1(int b, double[] d, double[] d0, double[] du, double[] dv, double dt) {
@@ -109,7 +111,7 @@ public class AdvectorNewA implements Advector {
     }
 
 
-    static class AdvectFunction {
+    public static class AdvectFunction {
 
         double[] d;
         double[] d0;
@@ -148,10 +150,10 @@ public class AdvectorNewA implements Advector {
         }
 
 
-        void apply(int index, int index00, int index01, int index10, int index11, double s0, double t0, double s1, double t1) {
+        Double apply(int index, int index00, int index01, int index10, int index11, double s0, double t0, double s1, double t1) {
 
-            if (reference) {
-
+//            if (reference) {
+//
                 this.index00 = index00;
                 this.index01 = index01;
                 this.index10 = index10;
@@ -161,15 +163,17 @@ public class AdvectorNewA implements Advector {
                 this.t0 = t0;
                 this.s1 = s1;
                 this.t1 = t1;
-            } else if (validate) {
+//            } else if (validate) {
+//
+//                if (this.index00 != index00 || this.index01 != index01 || this.index10 != index10 || this.index11 != index11
+//                    || this.s0 != s0 || this.t0 != t0 || this.s1 != s1 || this.t1 != t1)
+//                    throw new RuntimeException();
+//            }
 
-                if (this.index00 != index00 || this.index01 != index01 || this.index10 != index10 || this.index11 != index11
-                    || this.s0 != s0 || this.t0 != t0 || this.s1 != s1 || this.t1 != t1)
-                    throw new RuntimeException();
-            }
+//            if (! validate)
+                return s0 * (t0 * d0[index00] + t1 * d0[index01]) + s1 * (t0 * d0[index10] + t1 * d0[index11]);
 
-            if (! validate)
-                d[index] = s0 * (t0 * d0[index00] + t1 * d0[index01]) + s1 * (t0 * d0[index10] + t1 * d0[index11]);
+//            return null;
         }
     }
 
@@ -215,7 +219,10 @@ public class AdvectorNewA implements Advector {
         advectFunction.apply(index, index00, index01, index10, index11, s0, t0, s1, t1);
     }
 
-    void advectCoreNew(double dx, double dy, int col, int rowNum, int index, AdvectFunction advectFunction) {
+    public Double advectCoreNew(double[] du, double[] dv, double dt, int col, int rowNum, int index, AdvectFunction advectFunction) {
+
+        double dx = dt * du[index];
+        double dy = dt * dv[index];
 
         int dxi = (int) dx;
         int dyi = (int) dy;
@@ -279,7 +286,7 @@ public class AdvectorNewA implements Advector {
 
 
         try {
-            advectFunction.apply(index, index00, index01, index10, index11, s0, t0, s1, t1);
+            return advectFunction.apply(index, index00, index01, index10, index11, s0, t0, s1, t1);
         } catch (Exception ex) {
             throw ex;
         }
@@ -304,8 +311,6 @@ public class AdvectorNewA implements Advector {
 
                 int index = rowIndex + col;
 
-                double dx = dt0 * du[index];
-                double dy = dt0 * dv[index];
 
 //                advectFunction.setReference();
 //
@@ -313,7 +318,10 @@ public class AdvectorNewA implements Advector {
 //
 //                advectFunction.setValidate();
 
-                advectCoreNew(dx, dy, col, rowNum, index, advectFunction);
+                Double result = advectCoreNew(du, dv, dt0, col, rowNum, index, advectFunction);
+
+                if (result != null)
+                    d[index] = result;
 
 //                double x0 = col - dx;
 //                double y0 = rowNum - dy;

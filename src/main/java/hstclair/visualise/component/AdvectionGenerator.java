@@ -1,5 +1,6 @@
 package hstclair.visualise.component;
 
+import hstclair.visualise.AdvectorNewA;
 import hstclair.visualise.grid.DoubleGrid;
 import hstclair.visualise.grid.Indexor;
 
@@ -18,6 +19,8 @@ public class AdvectionGenerator {
     double upperBoundary;
     double lowerBoundary;
 
+    AdvectorNewA advectorNewA;
+
 
     public AdvectionGenerator(double dt, DoubleGrid d0, DoubleGrid du, DoubleGrid dv) {
 
@@ -32,19 +35,44 @@ public class AdvectionGenerator {
         this.d0 = d0;
         this.du = du;
         this.dv = dv;
+
+        advectorNewA = new AdvectorNewA(d0.edgeLength, d0.size);
     }
 
 
 
     public void generate(Indexor indexor) {
 
-        double dx = - dt0 * indexor.get(du);
-        double dy = - dt0 * indexor.get(dv);
+        double dx = dt0 * indexor.get(du);
+        double dy = dt0 * indexor.get(dv);
 
-        if (indexor.get(du) != 0 || indexor.get(dv) != 0)
-            dx = dx;
+        indexor.set(indexor.getInterpolated(d0, dx, dy));
 
-        indexor.set(indexor.get(d0, dx, dy));
+//        double advected = indexor.getInterpolatedAlt(d0, dx, dy);
+
+//        double advected = indexor.getInterpolated(d0, dx, dy);
+//
+//        if (that != advected) {
+//            indexor.getInterpolatedAlt(d0, dx, dy);
+//
+//            indexor.getInterpolated(d0, dx, dy);
+//        }
+
+
+
+        //
+//
+//        AdvectorNewA.AdvectFunction advectFunction = new AdvectorNewA.AdvectFunction(indexor.target.grid, d0.grid);
+
+//        Double advected = advectorNewA.advectCoreNew(du.grid, dv.grid, dt0, indexor.x, indexor.y, indexor.index, advectFunction);
+
+//        if (advected != originalAdvected) {
+//            advected = indexor.getInterpolated(d0, dx, dy);
+//            advected = advectorNewA.advectCoreNew(du.grid, dv.grid, dt, indexor.x, indexor.y, indexor.index, advectFunction);
+//        }
+
+
+//        indexor.set(advected);
 
 //        double x0 = indexor.x - dx;
 //        double y0 = indexor.y - dy;

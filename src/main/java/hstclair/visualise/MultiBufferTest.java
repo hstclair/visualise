@@ -141,7 +141,7 @@ public class MultiBufferTest {
                         double densityScaleFactor = meanMax / cycles / 2;
 
 
-                        solver.density.eachInner(indexor -> image.setRGB(indexor.x, indexor.y, greyscaleToRGB((int) (255 * Math.min(1, Math.max(0, 1 - indexor.get() / densityScaleFactor))))));
+                        solver.density.eachInnerColRow(indexor -> image.setRGB(indexor.x, indexor.y, greyscaleToRGB((int) (255 * Math.min(1, Math.max(0, 1 - indexor.get() / densityScaleFactor))))));
 
 //                        for (int x = 0; x < solver.edgeLength; x++) {
 //                            for (int y = 0; y < solver.edgeLength; y++) {

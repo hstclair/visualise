@@ -1,5 +1,7 @@
 package hstclair.visualise;
 
+import hstclair.visualise.grid.DoubleGrid;
+
 import java.util.Random;
 
 /**
@@ -14,37 +16,48 @@ public class FluidSolverA
 {
     Random random = new Random(System.currentTimeMillis());
 
-    int row;
-    int edgeLength, size;
-    int nSquared;
+//    int row;
+//    int edgeLength, size;
+//    int nSquared;
 
     //    float visc = 0;
 //    float visc = 0.000085f;
 //    float visc = 0.00015f;
 //    double visc = .00008;   // non-jupiter
-    double visc = .000002;   // jupiter
-    double diff = 0.0d;
+//    double visc = .000002;   // jupiter
+//    double diff = 0.0d;
 
-    double[] tmp;
 
-    double[] density, densityOld;
-    double[] u, uOld;
-    double[] v, vOld;
-    double[] curl;
+//    DoubleGrid tmp;
+//    DoubleGrid density;
+//    DoubleGrid densityOld;
+//    DoubleGrid u;
+//    DoubleGrid uOld;
+//    DoubleGrid v;
+//    DoubleGrid vOld;
+//    DoubleGrid curl;
+
+
+//    double[] tmp;
+//
+//    double[] density, densityOld;
+//    double[] u, uOld;
+//    double[] v, vOld;
+//    double[] curl;
 
     Advector advector;
 
-    double meanDensity;
-    double maxDensity;
-    double minDensity;
+//    double meanDensity;
+//    double maxDensity;
+//    double minDensity;
+//
+//    int repeats = 20;
 
-    int repeats = 20;
 
-
-    public FluidSolverA(int edgeLength, double dt, double viscosity, double diffusion) {
-        setup(edgeLength);
-        visc = viscosity;
-        diff = diffusion;
+    public FluidSolverA() {
+//        setup(edgeLength);
+//        visc = viscosity;
+//        diff = diffusion;
     }
 
     /**
@@ -52,14 +65,14 @@ public class FluidSolverA
      **/
     public void setup(int n)
     {
-        this.edgeLength = n;
-        this.nSquared = n*n;
-        this.row = n+2;
-        size = (n + 2) * (n + 2);
-
-        advector = new AdvectorNewA(this, edgeLength, size);
-
-        reset();
+//        this.edgeLength = n;
+//        this.nSquared = n*n;
+//        this.row = n+2;
+//        size = (n + 2) * (n + 2);
+//
+//        advector = new AdvectorNewA(this, edgeLength, size);
+//
+//        reset();
     }
 
 
@@ -70,19 +83,19 @@ public class FluidSolverA
 
     public void reset()
     {
-        density = new double[size];
-        densityOld = new double[size];
-        u    = new double[size];
-        uOld = new double[size];
-        v    = new double[size];
-        vOld = new double[size];
-        curl = new double[size];
-
-        for (int i = 0; i < size; i++)
-        {
-            u[i] = uOld[i] = v[i] = vOld[i] = 0.0f;
-            density[i] = densityOld[i] = curl[i] = 0.0f;
-        }
+//        density = new DoubleGrid(edgeLength);
+//        densityOld = new DoubleGrid(edgeLength);
+//        u    = new DoubleGrid(edgeLength);
+//        uOld = new DoubleGrid(edgeLength);
+//        v    = new DoubleGrid(edgeLength);
+//        vOld = new DoubleGrid(edgeLength);
+//        curl = new DoubleGrid(edgeLength);
+//
+//        for (int i = 0; i < size; i++)
+//        {
+//            u.grid[i] = uOld.grid[i] = v.grid[i] = vOld.grid[i] = 0.0f;
+//            density.grid[i] = densityOld.grid[i] = curl.grid[i] = 0.0f;
+//        }
     }
 
 
@@ -101,16 +114,21 @@ public class FluidSolverA
      *
      * @param Fbuoy Array to store buoyancy force for each cell.
      **/
-    public void buoyancy(double [] Fbuoy)
+    public void buoyancy(DoubleGrid Fbuoy, DoubleGrid density)
     {
         double ambientTemperature = 0;
         double a = 0.000625f;
         double b = 0.025f;
 
+        int row = Fbuoy.rowLength;
+        int size = Fbuoy.size;
+        int edgeLength = Fbuoy.edgeLength;
+        int nSquared = edgeLength*edgeLength;
+
         // sum all temperatures
         for (int rowIndex = row; rowIndex <= size - row; rowIndex += row) {
             for (int col = 1; col <= edgeLength; col++) {
-                ambientTemperature += density[rowIndex + col];
+                ambientTemperature += density.grid[rowIndex + col];
             }
         }
 
@@ -135,7 +153,7 @@ public class FluidSolverA
 
                 // fbuoy = p*x + q
 
-                Fbuoy[index] = p* density[index] + q;
+                Fbuoy.grid[index] = p* density.grid[index] + q;
             }
         }
     }
@@ -150,11 +168,13 @@ public class FluidSolverA
      * @param index the index of the cell we're working with
      **/
 
-    public double curl(int index /* int i, int j */)
+    public double curl(int index, DoubleGrid u, DoubleGrid v)
     {
 
-        double uDiff = u[index + row] - u[index - row];
-        double vDiff = v[index + 1] - v[index - 1];
+        int row = u.rowLength;
+
+        double uDiff = u.grid[index + row] - u.grid[index - row];
+        double vDiff = v.grid[index + 1] - v.grid[index - 1];
 
         return (uDiff-vDiff) * .5;
     }
@@ -173,11 +193,15 @@ public class FluidSolverA
      *        vorticity confinement force for each cell.
      **/
 
-    public void vorticityConfinement(double[] Fvc_x, double[] Fvc_y)
+    public void vorticityConfinement(DoubleGrid Fvc_x, DoubleGrid Fvc_y, DoubleGrid curl, DoubleGrid u, DoubleGrid v)
     {
         double dw_dx, dw_dy;
         double length;
-        double v;
+        double dblV;
+
+        int row = Fvc_x.rowLength;
+        int edgeLength = Fvc_x.edgeLength;
+        int size = Fvc_x.size;
 
         int rowIndex = 0;
         // Calculate magnitude of curl(u,v) for each cell. (|w|)
@@ -186,7 +210,7 @@ public class FluidSolverA
             for (int col = 1; col <= edgeLength; col++) {
                 int index = rowIndex + col;
 
-                curl[index] = Math.abs(curl(index));
+                curl.grid[index] = Math.abs(curl(index, u, v));
             }
         }
 
@@ -199,8 +223,8 @@ public class FluidSolverA
 
                 int index = rowIndex + col;
                 // Find derivative of the magnitude (n = del |w|)
-                dw_dx = (curl[index + 1] - curl[index-1]) * 0.5f;
-                dw_dy = (curl[index + row] - curl[index-row]) * 0.5f;
+                dw_dx = (curl.grid[index + 1] - curl.grid[index-1]) * 0.5f;
+                dw_dy = (curl.grid[index + row] - curl.grid[index-row]) * 0.5f;
 
                 // Calculate vector length. (|n|)
                 // Add small factor to prevent divide by zeros.
@@ -210,27 +234,27 @@ public class FluidSolverA
                 dw_dx /= length;
                 dw_dy /= length;
 
-                v = curl(rowIndex + col);
+                dblV = curl(rowIndex + col, u, v);
 
                 // N x w
-                Fvc_x[index] = dw_dy * -v;
-                Fvc_y[index] = dw_dx *  v;
+                Fvc_x.grid[index] = dw_dy * -dblV;
+                Fvc_y.grid[index] = dw_dx *  dblV;
             }
         }
     }
 
-    public void applyDensity(int x, int y, double density) {
-        this.density[I(x, y)] += density;
+    public void applyDensity(int x, int y, DoubleGrid densityGrid, double density) {
+        densityGrid.grid[I(x, y, densityGrid.edgeLength)] += density;
     }
 
-    public void applyForce(int x, int y, double dx, double dy) {
-        this.u[I(x, y)] += dx;
-        this.v[I(x, y)] += dy;
+    public void applyForce(int x, int y, double dx, double dy, DoubleGrid u, DoubleGrid v) {
+        u.grid[I(x, y, u.edgeLength)] += dx;
+        v.grid[I(x, y, v.edgeLength)] += dy;
     }
 
-    public void tick(double dt) {
-        velocitySolver(dt);
-        densitySolver(dt);
+    public void tick(double dt, double viscosity, double diffusion, int repeats, DoubleGrid u, DoubleGrid v, DoubleGrid uOld, DoubleGrid vOld, DoubleGrid curl, DoubleGrid density, DoubleGrid densityOld) {
+        velocitySolver(dt, viscosity, repeats, u, v, uOld, vOld, curl, density);
+        densitySolver(dt, diffusion, density, densityOld, u, v, repeats);
     }
 
 
@@ -238,44 +262,46 @@ public class FluidSolverA
      * The basic velocity solving routine as described by Stam.
      **/
 
-    public void velocitySolver(double dt)
+    public void velocitySolver(double dt, double viscosity, int repeats, DoubleGrid u, DoubleGrid v, DoubleGrid uOld, DoubleGrid vOld, DoubleGrid curl, DoubleGrid density)
     {
         // add velocity that was input by mouse
         addSource(u, uOld, dt);
         addSource(v, vOld, dt);
 
         // add in vorticity confinement force
-        vorticityConfinement(uOld, vOld);
+        vorticityConfinement(uOld, vOld, curl, u, v);
         addSource(u, uOld, dt);
         addSource(v, vOld, dt);
 
         // add in buoyancy force
-        buoyancy(vOld);
+        buoyancy(vOld, density);
         addSource(v, vOld, dt);
 
         // swapping arrays for economical mem use
         // and calculating diffusion in velocity.
-        swapU();
-        diffuse(0, u, uOld, visc, dt);
+        swap(u, uOld);
+        diffuse(0, u, uOld, viscosity, dt, repeats);
 
-        swapV();
-        diffuse(0, v, vOld, visc, dt);
+        swap(v, vOld);
+        diffuse(0, v, vOld, viscosity, dt, repeats);
 
         // we create an incompressible field
         // for more effective advection.
-        project(u, v, uOld, vOld);
+        project(u, v, uOld, vOld, repeats);
 
-        swapU(); swapV();
+        swap(u, uOld); swap(v, vOld);
 
         // self advect velocities
         advect(1, u, uOld, uOld, vOld, dt);
         advect(2, v, vOld, uOld, vOld, dt);
 
         // make an incompressible field
-        project(u, v, uOld, vOld);
+        project(u, v, uOld, vOld, repeats);
+
+        int size = uOld.size;
 
         // clear all input velocities for next frame
-        for (int i = 0; i < size; i++){ uOld[i] = 0; vOld[i] = 0; }
+        for (int i = 0; i < size; i++){ uOld.grid[i] = 0; vOld.grid[i] = 0; }
     }
 
 
@@ -283,39 +309,43 @@ public class FluidSolverA
      * The basic density solving routine.
      **/
 
-    public void densitySolver(double dt)
+    public void densitySolver(double dt, double diffusion, DoubleGrid density, DoubleGrid densityOld, DoubleGrid u, DoubleGrid v, int repeats)
     {
         // add density inputted by mouse
         addSource(density, densityOld, dt);
-        swapD();
+        swap(density, densityOld);
 
-        diffuse(0, density, densityOld, diff, dt);
-        swapD();
+        diffuse(0, density, densityOld, diffusion, dt, repeats);
+        swap(density, densityOld);
 
         advect(0, density, densityOld, u, v, dt);
 
+        int size = densityOld.size;
+
         // clear input density array for next frame
-        for (int i = 0; i < size; i++) densityOld[i] = 0;
+        for (int i = 0; i < size; i++) densityOld.grid[i] = 0;
 
-        meanDensity = 0;
-        maxDensity = 0;
-
-        for (int i = 0; i < size; i++) {
-            double densityValue = density[i];
-            maxDensity = Math.max(maxDensity, densityValue);
-            minDensity = Math.min(minDensity, densityValue);
-            meanDensity += densityValue;
-        }
-
-        meanDensity /= size;
+//        meanDensity = 0;
+//        maxDensity = 0;
+//
+//        for (int i = 0; i < size; i++) {
+//            double densityValue = density.grid[i];
+//            maxDensity = Math.max(maxDensity, densityValue);
+//            minDensity = Math.min(minDensity, densityValue);
+//            meanDensity += densityValue;
+//        }
+//
+//        meanDensity /= size;
 
     }
 
-    private void addSource(double[] x, double[] x0, double dt)
+    public void addSource(DoubleGrid x, DoubleGrid x0, double dt)
     {
+        int size = x.size;
+
         for (int i = 0; i < size; i++)
         {
-            x[i] += dt * x0[i];
+            x.grid[i] += dt * x0.grid[i];
         }
     }
 
@@ -335,8 +365,11 @@ public class FluidSolverA
      * @param dv The y component of the velocity field.
      **/
 
-    private void advect(int b, double[] d, double[] d0, double[] du, double[] dv, double dt)
+    public void advect(int b, DoubleGrid d, DoubleGrid d0, DoubleGrid du, DoubleGrid dv, double dt)
     {
+        if (advector == null || advector.getEdgeLength() != d.edgeLength)
+            advector = new AdvectorNewA(d.edgeLength, d.size);
+
         advector.advect(b, d, d0, du, dv, dt);
 
         setBoundry(b, d);
@@ -360,10 +393,10 @@ public class FluidSolverA
      * @param diff The factor of diffusion.
      **/
 
-    private void diffuse(int b, double[] c, double[] c0, double diff, double dt)
+    public void diffuse(int b, DoubleGrid c, DoubleGrid c0, double diff, double dt, int repeats)
     {
-        double a = dt * diff * nSquared;
-        linearSolver(b, c, c0, a, 1 + 4 * a);
+        double a = dt * diff * c.area;
+        linearSolver(b, c, c0, a, 1 + 4 * a, repeats);
     }
 
 
@@ -387,8 +420,11 @@ public class FluidSolverA
      *
      **/
 
-    void project(double[] x, double[] y, double[] p, double[] div)
+    public void project(DoubleGrid x, DoubleGrid y, DoubleGrid p, DoubleGrid div, int repeats)
     {
+        int edgeLength = x.edgeLength;
+        int rowLength = x.rowLength;
+
         int halfN = (edgeLength >> 1);
         double negOneOverTwoN = -0.5/ edgeLength;
 
@@ -396,28 +432,28 @@ public class FluidSolverA
         {
             for (int j = 1; j <= edgeLength; j++)
             {
-                int index = I(i,j);
+                int index = I(i,j, edgeLength);
 
-                div[index] = (x[index+1] - x[index-1]
-                        + y[index+row] - y[index-row])
+                div.grid[index] = (x.grid[index+1] - x.grid[index-1]
+                        + y.grid[index+rowLength] - y.grid[index-rowLength])
                         * negOneOverTwoN;
-                p[index] = 0;
+                p.grid[index] = 0;
             }
         }
 
         setBoundry(0, div);
         setBoundry(0, p);
 
-        linearSolver(0, p, div, 1, 4);
+        linearSolver(0, p, div, 1, 4, repeats);
 
         for (int i = 1; i <= edgeLength; i++)
         {
             for (int j = 1; j <= edgeLength; j++)
             {
-                int index = I(i,j);
+                int index = I(i,j,edgeLength);
 
-                x[index] -= halfN * (p[index+1] - p[index-1]);
-                y[index] -= halfN * (p[index+row] - p[index-row]);
+                x.grid[index] -= halfN * (p.grid[index+1] - p.grid[index-1]);
+                y.grid[index] -= halfN * (p.grid[index+rowLength] - p.grid[index-rowLength]);
             }
         }
 
@@ -432,15 +468,17 @@ public class FluidSolverA
      *
      **/
 
-    void linearSolver(int b, double[] x, double[] x0, double a, double c)
+    public void linearSolver(int b, DoubleGrid x, DoubleGrid x0, double a, double c, int repeats)
     {
-        int maxCol = edgeLength + 1;
-        int maxIndex = size - row;
+        int maxCol = x.edgeLength + 1;
+        int maxIndex = x.size - x.rowLength;
+
+        int rowLength = x.rowLength;
 
         for (int k = 0; k < repeats; k++) {
             for (int col = 1; col < maxCol; col++) {
-                for (int index = row + col; index < maxIndex; index += row) {
-                    x[index] = (a * ( x[index-1] + x[index+1] + x[index- row] + x[index+ row]) + x0[index]) / c;
+                for (int index = rowLength + col; index < maxIndex; index += rowLength) {
+                    x.grid[index] = (a * ( x.grid[index-1] + x.grid[index+1] + x.grid[index- rowLength] + x.grid[index+ rowLength]) + x0.grid[index]) / c;
                 }
             }
             setBoundry(b, x);
@@ -449,24 +487,32 @@ public class FluidSolverA
 
 
     // specifies simple boundry conditions for wrapping around a sphere east to west.
-    void setBoundry(int b, double[] x)
+    public void setBoundry(int b, DoubleGrid x)
     {
+        int edgeLength = x.edgeLength;
+
         for (int i = 0; i <= edgeLength + 1; i++)
         {
-            x[I(  i, 0  )] = x[I(i, edgeLength)];
-            x[I( i, edgeLength +1)] = + x[I(i,1)];
+            x.grid[I(  i, 0  , edgeLength)] = x.grid[I(i, edgeLength, edgeLength)];
+            x.grid[I( i, edgeLength +1, edgeLength)] = + x.grid[I(i,1, edgeLength)];
         }
     }
 
-    // util array swapping methods
-    public void swapU(){ tmp = u; u = uOld; uOld = tmp; }
-    public void swapV(){ tmp = v; v = vOld; vOld = tmp; }
-    public void swapD(){ tmp = density; density = densityOld; densityOld = tmp; }
-
-    public int INDEX(int x, int y) {
-        return I(x, y);
+    public void swap(DoubleGrid oldGrid, DoubleGrid newGrid) {
+        double[] tmp = oldGrid.grid;
+        oldGrid.grid = newGrid.grid;
+        newGrid.grid = tmp;
     }
 
+//    // util array swapping methods
+//    public void swapU(){ tmp = u; u = uOld; uOld = tmp; }
+//    public void swapV(){ tmp = v; v = vOld; vOld = tmp; }
+//    public void swapD(){ tmp = density; density = densityOld; densityOld = tmp; }
+
+//    public int INDEX(int x, int y) {
+//        return I(x, y);
+//    }
+
     // util method for indexing 1d arrays
-    int I(int i, int j){ return i + (edgeLength + 2) * j; }
+    int I(int i, int j, int edgeLength){ return i + (edgeLength + 2) * j; }
 }

@@ -51,13 +51,13 @@ public class AlexanderMcKinzieBuoyancySolverImpl implements BuoyancySolver {
 
         Accumulator accumulator = new Accumulator();
 
-        density.each(accumulator::accumulate);
+        density.eachOuterColRow(accumulator::accumulate);
 
         double ambientTemperature = accumulator.getMean();
 
         BuoyancyForceFieldGenerator fieldGenerator = new BuoyancyForceFieldGenerator(density, ambientTemperature, a, b);
 
-        buoyancyForce.each(fieldGenerator::generate);
+        buoyancyForce.eachOuterColRow(fieldGenerator::generate);
 
 
 //        for (int row = 0; row < density.edgeLength; row++) {

@@ -17,6 +17,8 @@ public class FluidSolver
 {
     Random random = new Random(System.currentTimeMillis());
 
+    FluidSolverA fluidSolverA = new FluidSolverA();
+
     VorticitySolver vorticityConfinementSolver;
     LinearSolver linearSolver;
     Projector projector;
@@ -30,7 +32,7 @@ public class FluidSolver
     int nSquared;
 
     double visc = .000002;   // jupiter
-    double diff = 0.0d;
+    double diffusion = 0.0d;
 
     DoubleGrid tmp;
     DoubleGrid density;
@@ -47,6 +49,13 @@ public class FluidSolver
 
     int repeats = 20;
 
+    boolean useOldDensitySolver = false;
+    boolean useOldAdvection = false;
+    boolean useOldVelocitySolver = true;
+    boolean useOldDiffusor = false;
+    boolean useOldProjection = true;
+    boolean useOldVorticity = true;
+    boolean useOldBuoyancy = true;
 
 
     public FluidSolver(int edgeLength, double dt, double viscosity, double diffusion) {
@@ -54,7 +63,7 @@ public class FluidSolver
         setup(edgeLength);
 
         visc = viscosity;
-        diff = diffusion;
+        this.diffusion = diffusion;
     }
 
     /**
@@ -77,7 +86,9 @@ public class FluidSolver
 
         advector = new AdvectorNew();
 
-        boundary = new CyclicalYBoundary(u);
+//        boundary = new CyclicalYBoundary(u);
+
+        boundary = new OldBoundary();
 
         buoyancySolver = new AlexanderMcKinzieBuoyancySolverImpl(edgeLength, row);
         vorticityConfinementSolver = new AlexanderMcKinzieVorticityConfinementSolver(edgeLength, 1);
@@ -127,19 +138,33 @@ public class FluidSolver
      * The basic velocity solving routine as described by Stam.
      **/
 
-    void velocitySolver(double dt)
-    {
+    void velocitySolver(double dt) {
+
+        if (useOldVelocitySolver) {
+            fluidSolverA.velocitySolver(dt, visc, repeats, u, v, uOld, vOld, curl, density);
+
+            return;
+        }
+
         // add velocity that was input by mouse
         u.add(uOld, dt);
         v.add(vOld, dt);
 
         // add in vorticity confinement force
-        vorticityConfinementSolver.solve(uOld, vOld, u, v);
+
+        if (useOldVorticity)
+            fluidSolverA.vorticityConfinement(uOld, vOld, curl, u, v);
+        else
+            vorticityConfinementSolver.solve(uOld, vOld, u, v);
+
         u.add(uOld, dt);
         v.add(vOld, dt);
 
         // add in buoyancy force
-        buoyancySolver.buoyancy(vOld, density);
+        if (useOldBuoyancy)
+            fluidSolverA.buoyancy(vOld, density);
+        else
+            buoyancySolver.buoyancy(vOld, density);
         v.add(vOld, dt);
 
         // swapping arrays for economical mem use
@@ -152,7 +177,11 @@ public class FluidSolver
 
         // we create an incompressible field
         // for more effective advection.
-        projector.project(u, v, uOld, vOld);
+
+        if (useOldProjection)
+            fluidSolverA.project(u, v, uOld, vOld, repeats);
+        else
+            projector.project(u, v, uOld, vOld);
 
         swapU(); swapV();
 
@@ -161,7 +190,10 @@ public class FluidSolver
         advect(2, v, vOld, uOld, vOld, dt);
 
         // make an incompressible field
-        projector.project(u, v, uOld, vOld);
+        if (useOldProjection)
+            fluidSolverA.project(u, v, uOld, vOld, repeats);
+        else
+            projector.project(u, v, uOld, vOld);
 
         uOld.clear();
         vOld.clear();
@@ -174,11 +206,18 @@ public class FluidSolver
 
     void densitySolver(double dt)
     {
+
+        if (useOldDensitySolver) {
+            fluidSolverA.densitySolver(dt, diffusion, density, densityOld, u, v, repeats);
+            return;
+        }
+
+
         // add density inputted by mouse
         density.add(densityOld, dt);
         swapD();
 
-        diffuse(0, density, densityOld, diff, dt);
+        diffuse(0, density, densityOld, diffusion, dt);
         swapD();
 
         advect(0, density, densityOld, u, v, dt);
@@ -201,11 +240,22 @@ public class FluidSolver
      * @param dv The y component of the velocity field.
      **/
 
-    private void advect(int b, DoubleGrid d, DoubleGrid d0, DoubleGrid du, DoubleGrid dv, double dt)
-    {
+    private void advect(int b, DoubleGrid d, DoubleGrid d0, DoubleGrid du, DoubleGrid dv, double dt) {
+
+        if (useOldAdvection) {
+
+            fluidSolverA.advect(b, d, d0, du, dv, dt);
+            return;
+        }
+
         advector.advect(b, d, d0, du, dv, dt);
 
         boundary.apply(d);
+
+
+
+
+
 //        setBoundry(b, d);
     }
 
@@ -227,8 +277,12 @@ public class FluidSolver
      * @param diff The factor of diffusion.
      **/
 
-    private void diffuse(int b, DoubleGrid c, DoubleGrid c0, double diff, double dt)
-    {
+    private void diffuse(int b, DoubleGrid c, DoubleGrid c0, double diff, double dt) {
+
+        if (useOldDiffusor) {
+            fluidSolverA.diffuse(b, c, c0, diff, dt, repeats);
+        }
+
         double a = dt * diff * nSquared;
         linearSolver.solve(b, c, c0, a, 1 + 4 * a);
     }

@@ -40,7 +40,7 @@ public class AlexanderMcKinzieProjector implements Projector {
 
         DivergenceFieldGenerator divergenceFieldGenerator = new DivergenceFieldGenerator(uField, vField);
 
-        divergenceField.eachInner(divergenceFieldGenerator::generate);
+        divergenceField.eachInnerColRow(divergenceFieldGenerator::generate);
 
         boundary.apply(divergenceField);
         p.clear();
@@ -50,7 +50,7 @@ public class AlexanderMcKinzieProjector implements Projector {
 
         CompressionCounterForceFieldGenerator compressionCounterForceFieldGenerator = new CompressionCounterForceFieldGenerator(uField, vField);
 
-        p.eachInner(compressionCounterForceFieldGenerator::generate);
+        p.eachInnerColRow(compressionCounterForceFieldGenerator::generate);
 
         boundary.apply(uField);
         boundary.apply(vField);

@@ -39,7 +39,7 @@ public class AlexanderMcKinzieVorticityConfinementSolver implements VorticitySol
     {
         CurlFieldGenerator fieldGenerator = new CurlFieldGenerator(uField, vField);
 
-        w.eachInner(fieldGenerator::generate);
+        w.eachInnerColRow(fieldGenerator::generate);
 
 //        int rowIndex = 0;
 //        // Calculate magnitude of curl(u,v) for each cell. (|w|)
@@ -54,7 +54,7 @@ public class AlexanderMcKinzieVorticityConfinementSolver implements VorticitySol
 
         VorticityConfinementFieldGenerator vorticityConfinementFieldGenerator = new VorticityConfinementFieldGenerator(w, Fvc_x, Fvc_y);
 
-        w.eachInner(vorticityConfinementFieldGenerator::generate);
+        w.eachInnerColRow(vorticityConfinementFieldGenerator::generate);
 //
 //        int i = 0, j = 0;
 //

@@ -13,50 +13,85 @@ public class DoubleGrid {
 
     public final int size;
 
+    public final int area;
+
     public double[] grid;
 
-    int[] rowOffset;
+    public int[] rowOffset;
 
     public DoubleGrid(int edgeLength) {
         this.edgeLength = edgeLength;
         this.rowLength = edgeLength + (boundaryCell << 1);
         this.size = rowLength * rowLength;
         this.grid = new double[size];
+        this.area = edgeLength * edgeLength;
 
-        rowOffset = new int[edgeLength << 1];
+        rowOffset = new int[rowLength];
+        int offset = 0;
 
         for (int i = 0; i < rowOffset.length; i++) {
-            int offset = i - edgeLength;
 
-            rowOffset[i] = offset * (edgeLength + 2);
+            rowOffset[i] = offset;
+
+            offset += rowLength;
         }
     }
 
     public void clear() {
-        Arrays.setAll(grid, x -> 0);
+        Arrays.fill(grid, 0);
     }
 
-    public void eachInner( Consumer<Indexor> operation) {
+    public void eachInnerColRow(Consumer<Indexor> operation) {
 
-        Indexor index = new Indexor(this, edgeLength, edgeLength, rowOffset, false, true);
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.innerTraversal(edgeLength), new ColumnRowTraversalStrategy());
 
-        do {
-            operation.accept(index);
-        } while (index.advance());
+        while (! indexor.rangeDepleted()) {
+
+            operation.accept(indexor);
+
+            indexor.advance();
+        }
     }
 
-    public void each(Consumer<Indexor> operation) {
+    public void eachInnerRowCol( Consumer<Indexor> operation) {
 
-        Indexor index = new Indexor(this, edgeLength, rowLength, rowOffset, false, true);
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.innerTraversal(edgeLength), new RowColumnTraversalStrategy());
 
-        do {
-            operation.accept(index);
-        } while (index.advance());
+        while (! indexor.rangeDepleted()) {
+
+            operation.accept(indexor);
+
+            indexor.advance();
+        }
+    }
+
+    public void eachOuterColRow(Consumer<Indexor> operation) {
+
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.fullTraversal(edgeLength), new ColumnRowTraversalStrategy());
+
+        while (! indexor.rangeDepleted()) {
+
+            operation.accept(indexor);
+
+            indexor.advance();
+        }
+    }
+
+    public void eachOuterRowCol(Consumer<Indexor> operation) {
+
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.fullTraversal(edgeLength), new RowColumnTraversalStrategy());
+
+        while (! indexor.rangeDepleted()) {
+
+            operation.accept(indexor);
+
+            indexor.advance();
+        }
     }
 
     public int index(int x, int y) {
 
-        return (y + 1) * rowLength + x + 1;
+        return rowOffset[y + 1] + x + 1;
     }
 
     public void set(int x, int y, double value) {

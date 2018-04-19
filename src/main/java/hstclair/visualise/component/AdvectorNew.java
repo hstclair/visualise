@@ -1,9 +1,15 @@
 package hstclair.visualise.component;
 
 import hstclair.visualise.Advector;
+import hstclair.visualise.AdvectorNewA;
+import hstclair.visualise.grid.ColumnRowTraversalStrategy;
 import hstclair.visualise.grid.DoubleGrid;
+import hstclair.visualise.grid.Indexor;
+import hstclair.visualise.grid.TraversalRange;
 
 public class AdvectorNew implements Advector {
+
+    AdvectorNewA advectorNewA;
 
 //    int[] rowOffset;
 //
@@ -81,29 +87,37 @@ public class AdvectorNew implements Advector {
 //    }
 
     @Override
+    public int getEdgeLength() {
+        return 0;
+    }
+
+    @Override
     public void advect(int b, DoubleGrid d, DoubleGrid d0, DoubleGrid du, DoubleGrid dv, double dt) {
 
-//        double dt0;
-//
-//        dt0 = dt * d.edgeLength;
+        d.eachInnerRowCol(new AdvectionGenerator(dt, d0, du, dv)::generate);
 
-        AdvectionGenerator advectionGenerator = new AdvectionGenerator(dt, d0, du, dv);
-
-        d.eachInner(advectionGenerator::generate);
-
-//        for (int col = 1; col <= d.edgeLength; col++) {
-//            int rowNum = 1;
+//        boolean no = false;
 //
-//            for (int rowIndex = d.rowLength; rowIndex < d.size - d.rowLength; rowIndex += d.rowLength) {
+//        if (no) {
 //
-//                int index = rowIndex + col;
+//            advectorNewA = new AdvectorNewA(d0.edgeLength, d0.size);
 //
-//                double dx = dt0 * du.grid[index];
-//                double dy = dt0 * dv.grid[index];
+//            int edgeLength = d.edgeLength;
 //
-//                advectCoreNew(dx, dy, col, rowNum, index, d, d0);
+//            Indexor indexor = new Indexor(d, edgeLength, d.rowOffset, TraversalRange.innerTraversal(edgeLength), new ColumnRowTraversalStrategy());
 //
-//                rowNum++;
+//            AdvectionGenerator generator = new AdvectionGenerator(dt, d0, du, dv);
+//
+//
+//            for (int x = 0; x < edgeLength; x++) {
+//                for (int y = 0; y < edgeLength; y++) {
+//
+//                    int index = d.index(x, y);
+//
+//                    indexor.setIndex(index, x, y);
+//
+//                    generator.generate(indexor);
+//                }
 //            }
 //        }
     }
