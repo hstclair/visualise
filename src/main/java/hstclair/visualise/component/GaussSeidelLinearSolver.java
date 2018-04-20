@@ -27,7 +27,7 @@ public class GaussSeidelLinearSolver implements LinearSolver {
 
         for (int count = 0; count < repeats; count++) {
 
-            output.eachInnerColRow(fieldGenerator::generate);
+            output.eachInnerRowCol(fieldGenerator::generate);
 
             boundary.apply(output);
 

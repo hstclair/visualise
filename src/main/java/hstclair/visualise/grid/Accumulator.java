@@ -8,7 +8,7 @@ public class Accumulator {
     Double mean;
 
     public void accumulate(Indexor indexor) {
-        total = indexor.get();
+        total += indexor.get();
         count++;
     }
 

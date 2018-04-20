@@ -3,7 +3,7 @@ package hstclair.visualise.component;
 import hstclair.visualise.grid.DoubleGrid;
 import hstclair.visualise.grid.Indexor;
 
-public class DivergenceFieldGenerator {
+public class DivergenceFieldGenerator implements FieldGenerator {
 
     DoubleGrid uField;
     DoubleGrid vField;
@@ -20,7 +20,7 @@ public class DivergenceFieldGenerator {
         negOneOverTwoN = -0.5 / uField.edgeLength;
     }
 
-    void generate(Indexor indexor) {
+    public void generate(Indexor indexor) {
 
         indexor.set((indexor.lateralGradient(uField) + indexor.verticalGradient(vField)) * negOneOverTwoN);
     }

@@ -3,23 +3,30 @@ package hstclair.visualise.component;
 import hstclair.visualise.grid.DoubleGrid;
 import hstclair.visualise.grid.Indexor;
 
-public class VorticityConfinementFieldGenerator {
+public class VorticityConfinementFieldGenerator implements FieldGenerator {
 
     DoubleGrid w;
     DoubleGrid fvcX;
     DoubleGrid fvcY;
+    DoubleGrid uField;
+    DoubleGrid vField;
 
-    public VorticityConfinementFieldGenerator(DoubleGrid w, DoubleGrid fvcX, DoubleGrid fvcY) {
+    public VorticityConfinementFieldGenerator(DoubleGrid w, DoubleGrid fvcX, DoubleGrid fvcY, DoubleGrid uField, DoubleGrid vField) {
         this.w = w;
         this.fvcX = fvcX;
         this.fvcY = fvcY;
+        this.uField = uField;
+        this.vField = vField;
     }
 
     public void generate(Indexor indexor) {
 
+        if (indexor.x < 1 || indexor.x >= w.edgeLength || indexor.y < 1 || indexor.y >= w.edgeLength)
+            return;
+
         // Find derivative of the magnitude (n = del |w|)
-        double dw_dx = indexor.lateralGradient(w) * 0.5f;
-        double dw_dy = indexor.verticalGradient(w) * 0.5f;
+        double dw_dx = indexor.lateralGradient(w);
+        double dw_dy = indexor.verticalGradient(w);
 
         if (dw_dx == 0 && dw_dy == 0) {
             indexor.set(fvcX, 0);
@@ -32,10 +39,7 @@ public class VorticityConfinementFieldGenerator {
         double length = Math.sqrt(dw_dx * dw_dx + dw_dy * dw_dy);
 
         // N = ( n/|n| )
-//        dw_dx /= length;
-//        dw_dy /= length;
-
-        double v = indexor.get(w) / length;
+        double v = (indexor.verticalGradient(uField) - indexor.lateralGradient(vField)) * .5 / length;
 
         // N x w
         indexor.set(fvcX, dw_dy * -v);

@@ -69,28 +69,25 @@ public class InterpolatorNew implements Interpolator {
         xSrc0 = (int) xSrc;
         ySrc0 = (int) ySrc;
 
-//        s1 = Math.abs(xSrc - xSrc0);
-//        t1 = Math.abs(ySrc - ySrc0);
-//
-//        s0 = 1 - s1;
-//        t0 = 1 - t1;
+        s1 = Math.abs(xSrc - xSrc0);
+        t1 = Math.abs(ySrc - ySrc0);
+
+        s0 = 1 - s1;
+        t0 = 1 - t1;
 
         xSrc1 = xSrc0 + 1;
         ySrc1 = ySrc0 + 1;
 
-        dxf = xSrc - xSrc0;
-        dyf = ySrc - ySrc0;
-
-        if (xSrc0 > edgeLength) {
-            xSrc0 = edgeLength;
-            dxf = .5;
+        if (xSrc0 > edgeLength - 1) {
+            xSrc0 = edgeLength - 1;
+            s0 = s1 = .5;
         } else if (xSrc0 < 0) {
             xSrc0 = 0;
-            dxf = .5;
+            s0 = s1 = .5;
         }
 
-        if (xSrc1 > edgeLength + 1)
-            xSrc1 = edgeLength + 1;
+        if (xSrc1 > edgeLength)
+            xSrc1 = edgeLength;
         else if (xSrc1 < -1)
             xSrc1 = -1;
 
@@ -105,11 +102,6 @@ public class InterpolatorNew implements Interpolator {
 
         if (ySrc1 < 0)
             ySrc1 = (ySrc1 % edgeLength) + edgeLength;
-
-        s1 = dxf % 1;
-        s0 = 1 - s1;
-        t1 = dyf % 1;
-        t0 = 1 - t1;
 
         dy0 = ySrc0 - y;
         dy1 = ySrc1 - y;

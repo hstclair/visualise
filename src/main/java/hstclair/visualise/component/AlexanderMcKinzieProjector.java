@@ -1,6 +1,7 @@
 package hstclair.visualise.component;
 
 import hstclair.visualise.Boundary;
+import hstclair.visualise.FluidSolverA;
 import hstclair.visualise.grid.DoubleGrid;
 import hstclair.visualise.LinearSolver;
 import hstclair.visualise.Projector;
@@ -38,7 +39,7 @@ public class AlexanderMcKinzieProjector implements Projector {
 
     public void project(DoubleGrid uField, DoubleGrid vField, DoubleGrid p, DoubleGrid divergenceField) {
 
-        DivergenceFieldGenerator divergenceFieldGenerator = new DivergenceFieldGenerator(uField, vField);
+        FieldGenerator divergenceFieldGenerator = new DivergenceFieldGenerator(uField, vField);
 
         divergenceField.eachInnerColRow(divergenceFieldGenerator::generate);
 
@@ -54,55 +55,5 @@ public class AlexanderMcKinzieProjector implements Projector {
 
         boundary.apply(uField);
         boundary.apply(vField);
-
-
-//        int halfN = (uField.edgeLength >> 1);
-//        double negOneOverTwoN = -0.5/ uField.edgeLength;
-//
-//        for (int col = 0; col < uField.edgeLength; col++)
-//        {
-//            for (int row = 0; row < uField.edgeLength; row++)
-//            {
-//                int index = uField.index(col,row);
-//
-//                divergenceField.set(col, row, (uField.get(col+1, row) - uField.get(col - 1, row)
-//                        + vField.get(col, row+1) - vField.get(col, row - 1))
-//                        * negOneOverTwoN);
-//                p.grid[index] = 0;
-//
-////                div.grid[index] = (x.grid[index+1] - x.grid[index-1]
-////                        + y.grid[index+x.rowLength] - y.grid[index-x.rowLength])
-////                        * negOneOverTwoN;
-////                p.grid[index] = 0;
-//            }
-//        }
-
-//        boundary.apply(p);
-
-//        setBoundry(0, div);
-//        setBoundry(0, p);
-
-//        for (int i = 0; i < uField.edgeLength; i++)
-//        {
-//            for (int j = 0; j < uField.edgeLength; j++)
-//            {
-//
-//                // computing pressure gradient using central difference method
-//                // and using this to construct the resulting force vector
-//                // (our fluid is incompressible so we must force the pressure gradient to zero)
-//
-//                uField.add(i,j, - halfN * (p.get(i+1,j) - p.get(i-1,j)));
-//                vField.add(i,j, - halfN * p.get(i,j+1) - p.get(i,j-1));
-//
-//
-////                int index = x.index(i,j);
-////
-////                x.grid[index] -= halfN * (p.grid[index+1] - p.grid[index-1]);
-////                y.grid[index] -= halfN * (p.grid[index+x.rowLength] - p.grid[index-x.rowLength]);
-//            }
-//        }
-
-//        setBoundry(1, x);
-//        setBoundry(2, y);
     }
 }

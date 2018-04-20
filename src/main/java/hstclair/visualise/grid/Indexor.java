@@ -200,7 +200,7 @@ public class Indexor {
     }
 
     public double neighborSum() {
-        return target.grid[index + 1] + target.grid[index - 1] + target.grid[index + rowLength] + target.grid[index - rowLength];
+        return target.grid[index + 1] + target.grid[index - 1] + target.grid[index - rowLength] + target.grid[index + rowLength];
     }
 
     public double neighborSum(DoubleGrid source) {

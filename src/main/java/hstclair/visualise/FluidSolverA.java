@@ -400,6 +400,30 @@ public class FluidSolverA
     }
 
 
+    public void divergence(DoubleGrid x, DoubleGrid y, DoubleGrid p, DoubleGrid div) {
+
+        int edgeLength = x.edgeLength;
+        int rowLength = x.rowLength;
+
+        double negOneOverTwoN = -0.5/ edgeLength;
+
+        for (int i = 1; i <= edgeLength; i++)
+        {
+            for (int j = 1; j <= edgeLength; j++)
+            {
+                int index = I(i,j, edgeLength);
+
+                div.grid[index] = (x.grid[index+1] - x.grid[index-1]
+                        + y.grid[index+rowLength] - y.grid[index-rowLength])
+                        * negOneOverTwoN;
+                p.grid[index] = 0;
+            }
+        }
+
+        setBoundry(0, div);
+        setBoundry(0, p);
+    }
+
     /**
      * Use project() to make the velocity a mass conserving,
      * incompressible field. Achieved through a Hodge
@@ -426,25 +450,34 @@ public class FluidSolverA
         int rowLength = x.rowLength;
 
         int halfN = (edgeLength >> 1);
-        double negOneOverTwoN = -0.5/ edgeLength;
+//        double negOneOverTwoN = -0.5/ edgeLength;
 
-        for (int i = 1; i <= edgeLength; i++)
-        {
-            for (int j = 1; j <= edgeLength; j++)
-            {
-                int index = I(i,j, edgeLength);
-
-                div.grid[index] = (x.grid[index+1] - x.grid[index-1]
-                        + y.grid[index+rowLength] - y.grid[index-rowLength])
-                        * negOneOverTwoN;
-                p.grid[index] = 0;
-            }
-        }
-
-        setBoundry(0, div);
-        setBoundry(0, p);
+        divergence(x, y, p, div);
 
         linearSolver(0, p, div, 1, 4, repeats);
+
+        compressionCounterForce(x, y, p);
+
+//        for (int i = 1; i <= edgeLength; i++)
+//        {
+//            for (int j = 1; j <= edgeLength; j++)
+//            {
+//                int index = I(i,j,edgeLength);
+//
+//                x.grid[index] -= halfN * (p.grid[index+1] - p.grid[index-1]);
+//                y.grid[index] -= halfN * (p.grid[index+rowLength] - p.grid[index-rowLength]);
+//            }
+//        }
+//
+//        setBoundry(1, x);
+//        setBoundry(2, y);
+    }
+
+    public void compressionCounterForce(DoubleGrid x, DoubleGrid y, DoubleGrid p) {
+
+        int edgeLength = x.edgeLength;
+        int rowLength = x.rowLength;
+        int halfN = edgeLength >> 1;
 
         for (int i = 1; i <= edgeLength; i++)
         {

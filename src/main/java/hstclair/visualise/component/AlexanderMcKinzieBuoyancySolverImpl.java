@@ -58,40 +58,5 @@ public class AlexanderMcKinzieBuoyancySolverImpl implements BuoyancySolver {
         BuoyancyForceFieldGenerator fieldGenerator = new BuoyancyForceFieldGenerator(density, ambientTemperature, a, b);
 
         buoyancyForce.eachOuterColRow(fieldGenerator::generate);
-
-
-//        for (int row = 0; row < density.edgeLength; row++) {
-//            for (int col = 0; col < density.edgeLength; col++)
-//                ambientTemperature += density.get(col, row);
-//        }
-
-        // sum all temperatures
-//        for (int rowIndex = density.rowLength; rowIndex <= buoyancyForce.size - density.rowLength; rowIndex += density.rowLength) {
-//            for (int col = 1; col <= edgeLength; col++) {
-//                ambientTemperature += density.grid[rowIndex + col];
-//            }
-//        }
-
-        // get average temperature
-//        ambientTemperature /= area;
-
-//        double q = b*ambientTemperature;
-//        double p = a-b;
-
-        // Fb = (a - b) * d + b * ambientTemperature
-
-//        for (int row = 0; row < buoyancyForce.edgeLength; row++) {
-//            for (int col = 0; col < buoyancyForce.edgeLength; col++)
-//                buoyancyForce.set(col, row, p*density.get(col, row) + q);
-//        }
-
-        // for each cell compute buoyancy force
-//        for (int rowIndex = buoyancyForce.rowLength; rowIndex <= area - buoyancyForce.rowLength; rowIndex += buoyancyForce.rowLength) {
-//            for (int col = 1; col < edgeLength; col++) {
-//                int index = rowIndex + col;
-//
-//                buoyancyForce.grid[index] = p* density.grid[index] + q;
-//            }
-//        }
     }
 }

@@ -3,7 +3,7 @@ package hstclair.visualise.component;
 import hstclair.visualise.grid.DoubleGrid;
 import hstclair.visualise.grid.Indexor;
 
-public class GaussSeidelFieldGenerator {
+public class GaussSeidelFieldGenerator implements FieldGenerator {
 
     double a;
     double c;

@@ -51,11 +51,11 @@ public class FluidSolver
 
     boolean useOldDensitySolver = false;
     boolean useOldAdvection = false;
-    boolean useOldVelocitySolver = true;
+    boolean useOldVelocitySolver = false;
     boolean useOldDiffusor = false;
-    boolean useOldProjection = true;
-    boolean useOldVorticity = true;
-    boolean useOldBuoyancy = true;
+    boolean useOldProjection = false;
+    boolean useOldVorticity = false;
+    boolean useOldBuoyancy = false;
 
 
     public FluidSolver(int edgeLength, double dt, double viscosity, double diffusion) {
@@ -251,12 +251,6 @@ public class FluidSolver
         advector.advect(b, d, d0, du, dv, dt);
 
         boundary.apply(d);
-
-
-
-
-
-//        setBoundry(b, d);
     }
 
 
@@ -291,11 +285,4 @@ public class FluidSolver
     public void swapU(){ tmp = u; u = uOld; uOld = tmp; }
     public void swapV(){ tmp = v; v = vOld; vOld = tmp; }
     public void swapD(){ tmp = density; density = densityOld; densityOld = tmp; }
-
-//    public int INDEX(int x, int y) {
-//        return I(x, y);
-//    }
-
-    // util method for indexing 1d arrays
-//    int I(int i, int j){ return i + (edgeLength + 2) * j; }
 }

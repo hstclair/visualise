@@ -41,6 +41,18 @@ public class DoubleGrid {
         Arrays.fill(grid, 0);
     }
 
+    public void each(Consumer<Indexor> operation, TraversalRange traversalRange, TraversalStrategy traversalStrategy) {
+
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, traversalRange, traversalStrategy);
+
+        while (! indexor.rangeDepleted()) {
+
+            operation.accept(indexor);
+
+            indexor.advance();
+        }
+    }
+
     public void eachInnerColRow(Consumer<Indexor> operation) {
 
         Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.innerTraversal(edgeLength), new ColumnRowTraversalStrategy());
