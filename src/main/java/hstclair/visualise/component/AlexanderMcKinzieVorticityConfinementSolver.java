@@ -16,7 +16,6 @@ public class AlexanderMcKinzieVorticityConfinementSolver implements VorticitySol
     }
 
 
-
     /**
      * Calculate the vorticity confinement force for each cell
      * in the fluid grid. At a point (i,j), Fvc = N x w where
@@ -29,17 +28,14 @@ public class AlexanderMcKinzieVorticityConfinementSolver implements VorticitySol
      * @param Fvc_y The array to store the y component of the
      *        vorticity confinement force for each cell.
      **/
-    public void solve(DoubleGrid Fvc_x, DoubleGrid Fvc_y, DoubleGrid uField, DoubleGrid vField)
-    {
+    public void solve(DoubleGrid Fvc_x, DoubleGrid Fvc_y, DoubleGrid uField, DoubleGrid vField) {
         FieldGenerator fieldGenerator = new CurlFieldGenerator(uField, vField);
 
         w.eachInnerColRow(fieldGenerator::generate);
 
         FieldGenerator vorticityConfinementFieldGenerator = new VorticityConfinementFieldGenerator(w, Fvc_x, Fvc_y, uField, vField);
 
-//        w.each(vorticityConfinementFieldGenerator::generate, TraversalRange.customTraversal(1, 1, w.edgeLength - 1, w.edgeLength - 1), new ColumnRowTraversalStrategy());
-
-        w.eachInnerColRow(vorticityConfinementFieldGenerator::generate);
+        w.each(vorticityConfinementFieldGenerator::generate, TraversalRange.customTraversal(2, 2, w.edgeLength - 1, w.edgeLength - 1), new ColumnRowTraversalStrategy());
     }
 
 }

@@ -49,13 +49,13 @@ public class FluidSolver
 
     int repeats = 20;
 
-    boolean useOldDensitySolver = false;
-    boolean useOldAdvection = false;
-    boolean useOldVelocitySolver = false;
-    boolean useOldDiffusor = false;
-    boolean useOldProjection = false;
-    boolean useOldVorticity = false;
-    boolean useOldBuoyancy = false;
+//    boolean useOldDensitySolver = false;
+//    boolean useOldAdvection = false;
+//    boolean useOldVelocitySolver = false;
+//    boolean useOldDiffusor = false;
+//    boolean useOldProjection = false;
+//    boolean useOldVorticity = false;
+//    boolean useOldBuoyancy = false;
 
 
     public FluidSolver(int edgeLength, double dt, double viscosity, double diffusion) {
@@ -140,11 +140,11 @@ public class FluidSolver
 
     void velocitySolver(double dt) {
 
-        if (useOldVelocitySolver) {
-            fluidSolverA.velocitySolver(dt, visc, repeats, u, v, uOld, vOld, curl, density);
-
-            return;
-        }
+//        if (useOldVelocitySolver) {
+//            fluidSolverA.velocitySolver(dt, visc, repeats, u, v, uOld, vOld, curl, density);
+//
+//            return;
+//        }
 
         // add velocity that was input by mouse
         u.add(uOld, dt);
@@ -152,18 +152,18 @@ public class FluidSolver
 
         // add in vorticity confinement force
 
-        if (useOldVorticity)
-            fluidSolverA.vorticityConfinement(uOld, vOld, curl, u, v);
-        else
+//        if (useOldVorticity)
+//            fluidSolverA.vorticityConfinement(uOld, vOld, curl, u, v);
+//        else
             vorticityConfinementSolver.solve(uOld, vOld, u, v);
 
         u.add(uOld, dt);
         v.add(vOld, dt);
 
         // add in buoyancy force
-        if (useOldBuoyancy)
-            fluidSolverA.buoyancy(vOld, density);
-        else
+//        if (useOldBuoyancy)
+//            fluidSolverA.buoyancy(vOld, density);
+//        else
             buoyancySolver.buoyancy(vOld, density);
         v.add(vOld, dt);
 
@@ -178,9 +178,9 @@ public class FluidSolver
         // we create an incompressible field
         // for more effective advection.
 
-        if (useOldProjection)
-            fluidSolverA.project(u, v, uOld, vOld, repeats);
-        else
+//        if (useOldProjection)
+//            fluidSolverA.project(u, v, uOld, vOld, repeats);
+//        else
             projector.project(u, v, uOld, vOld);
 
         swapU(); swapV();
@@ -190,9 +190,9 @@ public class FluidSolver
         advect(2, v, vOld, uOld, vOld, dt);
 
         // make an incompressible field
-        if (useOldProjection)
-            fluidSolverA.project(u, v, uOld, vOld, repeats);
-        else
+//        if (useOldProjection)
+//            fluidSolverA.project(u, v, uOld, vOld, repeats);
+//        else
             projector.project(u, v, uOld, vOld);
 
         uOld.clear();
@@ -206,11 +206,11 @@ public class FluidSolver
 
     void densitySolver(double dt)
     {
-
-        if (useOldDensitySolver) {
-            fluidSolverA.densitySolver(dt, diffusion, density, densityOld, u, v, repeats);
-            return;
-        }
+//
+//        if (useOldDensitySolver) {
+//            fluidSolverA.densitySolver(dt, diffusion, density, densityOld, u, v, repeats);
+//            return;
+//        }
 
 
         // add density inputted by mouse
@@ -242,11 +242,11 @@ public class FluidSolver
 
     private void advect(int b, DoubleGrid d, DoubleGrid d0, DoubleGrid du, DoubleGrid dv, double dt) {
 
-        if (useOldAdvection) {
-
-            fluidSolverA.advect(b, d, d0, du, dv, dt);
-            return;
-        }
+//        if (useOldAdvection) {
+//
+//            fluidSolverA.advect(b, d, d0, du, dv, dt);
+//            return;
+//        }
 
         advector.advect(b, d, d0, du, dv, dt);
 
@@ -273,9 +273,9 @@ public class FluidSolver
 
     private void diffuse(int b, DoubleGrid c, DoubleGrid c0, double diff, double dt) {
 
-        if (useOldDiffusor) {
-            fluidSolverA.diffuse(b, c, c0, diff, dt, repeats);
-        }
+//        if (useOldDiffusor) {
+//            fluidSolverA.diffuse(b, c, c0, diff, dt, repeats);
+//        }
 
         double a = dt * diff * nSquared;
         linearSolver.solve(b, c, c0, a, 1 + 4 * a);

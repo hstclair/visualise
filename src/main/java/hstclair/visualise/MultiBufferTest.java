@@ -64,7 +64,7 @@ public class MultiBufferTest {
         int edgeLength = 128;
         double diffusion = 0.0001;
         double viscosity = .0000003;
-        double dt = .3;
+        double dt = .03;
         double dConst = .5;
         double timeScale = 1;
 
@@ -174,7 +174,9 @@ public class MultiBufferTest {
 
                     nanos = System.nanoTime() - nanos;
 
-                    dt = (((double) nanos) / 1000000000) * timeScale;
+//                    dt = .03;
+
+//                    dt = (((double) nanos) / 1000000000) * timeScale;
 
                     System.out.printf("%1$d nanos - %2$f dt  \n", nanos, dt);
                 }
