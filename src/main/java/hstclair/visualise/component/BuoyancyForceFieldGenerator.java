@@ -16,6 +16,6 @@ public class BuoyancyForceFieldGenerator {
     }
 
     public void generate(Indexor indexor) {
-        indexor.set(buoyancyScale * indexor.get(density) + buoyancyConst);
+        indexor.setValue(buoyancyScale * indexor.getValue(density) + buoyancyConst);
     }
 }

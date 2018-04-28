@@ -43,9 +43,9 @@ public class AdvectionGenerator {
 
     public void generate(Indexor indexor) {
 
-        double dx = dt0 * indexor.get(du);
-        double dy = dt0 * indexor.get(dv);
+        double dx = dt0 * indexor.getValue(du);
+        double dy = dt0 * indexor.getValue(dv);
 
-        indexor.set(indexor.getInterpolated(d0, dx, dy));
+        indexor.setValue(indexor.getInterpolated(d0, dx, dy));
     }
 }

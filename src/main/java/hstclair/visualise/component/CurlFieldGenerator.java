@@ -21,6 +21,6 @@ public class CurlFieldGenerator implements FieldGenerator {
      *
      **/
     public void generate(Indexor indexor) {
-        indexor.set(Math.abs((indexor.verticalGradient(uField) - indexor.lateralGradient(vField)) * .5));
+        indexor.setValue(Math.abs((indexor.verticalGradient(uField) - indexor.lateralGradient(vField)) * .5));
     }
 }

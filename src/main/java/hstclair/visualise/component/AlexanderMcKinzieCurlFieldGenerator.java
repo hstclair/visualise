@@ -24,6 +24,6 @@ public class AlexanderMcKinzieCurlFieldGenerator implements FieldGenerator {
         double uDiff = uField.grid[index + row] - uField.grid[index - row];
         double vDiff = vField.grid[index + 1] - vField.grid[index - 1];
 
-        indexor.set(Math.abs((uDiff-vDiff) * .5));
+        indexor.setValue(Math.abs((uDiff-vDiff) * .5));
     }
 }

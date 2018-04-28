@@ -32,7 +32,7 @@ public class AlexanderMcKinzieDivergenceFieldGenerator implements FieldGenerator
                 + orgVerticalGradient)
                 * negOneOverTwoN;
 
-        indexor.set(orgResult);
+        indexor.setValue(orgResult);
     }
 
 }

@@ -22,6 +22,6 @@ public class DivergenceFieldGenerator implements FieldGenerator {
 
     public void generate(Indexor indexor) {
 
-        indexor.set((indexor.lateralGradient(uField) + indexor.verticalGradient(vField)) * negOneOverTwoN);
+        indexor.setValue((indexor.lateralGradient(uField) + indexor.verticalGradient(vField)) * negOneOverTwoN);
     }
 }

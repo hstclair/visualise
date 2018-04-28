@@ -18,7 +18,7 @@ public class GaussSeidelFieldGenerator implements FieldGenerator {
 
     public void generate(Indexor indexor) {
 
-        indexor.set((a * indexor.neighborSum() + indexor.get(input)) / c);
+        indexor.setValue((a * indexor.neighborSum() + indexor.getValue(input)) / c);
     }
 
 }

@@ -27,7 +27,7 @@ public class AlexanderMcKinzieGaussSeidelFieldGenerator implements FieldGenerato
 
         double result = (a * neighborSum + input.grid[index]) / c;
 
-        indexor.set(result);
+        indexor.setValue(result);
     }
 
 }
