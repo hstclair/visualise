@@ -55,16 +55,192 @@ public class Indexor {
         this.y = y;
     }
 
-    boolean rangeDepleted() {
+    public boolean rangeDepleted() {
         return traversalStrategy.done(this);
     }
 
-    void advance() {
+    public void advance() {
 
         if (traversalStrategy.done(this))
             return;
 
         traversalStrategy.advance(this);
+    }
+
+    public void move(Orientation orientation) {
+
+        switch (orientation) {
+            case Up:
+
+                y--;
+                index -= rowLength;
+
+                break;
+
+            case Down:
+
+                y++;
+                index += rowLength;
+
+                break;
+
+            case Left:
+
+                x--;
+                index--;
+
+                break;
+
+            case Right:
+
+                x++;
+                index++;
+
+                break;
+
+            default:
+
+                throw new IllegalArgumentException("Unknown orientation");
+        }
+    }
+
+    public void moveTo(CoordReference coordReference) {
+
+        switch (coordReference) {
+
+            case MaxXMinY:
+
+                x = traversalRange.maxX;
+                y = traversalRange.minY;
+
+                break;
+
+            case MinXMaxY:
+
+                x = traversalRange.minX;
+                y = traversalRange.maxY;
+
+                break;
+
+            case MinXY:
+
+                x = traversalRange.minX;
+                y = traversalRange.minY;
+
+                break;
+
+            case MaxXY:
+
+                x = traversalRange.maxX;
+                y = traversalRange.maxY;
+
+                break;
+
+            case MinY:
+
+                y = traversalRange.minY;
+
+                break;
+
+            case MinX:
+
+                x = traversalRange.minX;
+
+                break;
+
+            case MaxY:
+
+                y = traversalRange.maxY;
+
+                break;
+
+            case MaxX:
+
+                x = traversalRange.maxX;
+
+                break;
+
+            case CenterY:
+
+                y = traversalRange.centerY;
+
+                break;
+
+            case CenterX:
+
+                x = traversalRange.centerX;
+
+                break;
+
+            case CenterXY:
+
+                x = traversalRange.centerX;
+                y = traversalRange.centerY;
+
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown coordinate reference");
+        }
+
+        index = indexOf(x, y);
+    }
+
+    public boolean at(CoordReference coordReference) {
+
+        switch (coordReference) {
+
+            case MinXMaxY:
+
+                return x == traversalRange.minX && y == traversalRange.maxY;
+
+            case MaxXMinY:
+
+                return x == traversalRange.maxX && y == traversalRange.minY;
+
+            case MaxX:
+
+                return x == traversalRange.maxX;
+
+            case MaxY:
+
+                return y == traversalRange.maxY;
+
+            case MinX:
+
+                return x == traversalRange.minX;
+
+            case MinY:
+
+                return y == traversalRange.minY;
+
+            case MaxXY:
+
+                return x == traversalRange.maxX && y == traversalRange.maxY;
+
+            case MinXY:
+
+                return x == traversalRange.minX && y == traversalRange.minY;
+
+            case CenterXY:
+
+                return x == traversalRange.centerX && y == traversalRange.centerY;
+
+            case CenterX:
+
+                return x == traversalRange.centerX;
+
+            case CenterY:
+
+                return y == traversalRange.centerY;
+
+            case EqualXY:
+
+                return x == y;
+
+            default:
+                throw new IllegalArgumentException("Unknown coordinate reference");
+        }
     }
 
     public double getValue() {

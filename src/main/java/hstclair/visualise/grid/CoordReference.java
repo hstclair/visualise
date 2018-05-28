@@ -7,7 +7,10 @@ public enum CoordReference {
     MaxY,
     MinXY,
     MaxXY,
+    MaxXMinY,
+    MinXMaxY,
     CenterX,
     CenterY,
     CenterXY,
+    EqualXY
 }

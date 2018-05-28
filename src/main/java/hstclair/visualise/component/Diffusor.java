@@ -35,10 +35,10 @@ public class Diffusor {
 
         double sum = Arrays.stream(array).sum();
 
-        double factor = 1 / sum;
+        double normalizationFactor = 1 / sum;
 
         for (int index = 0; index < array.length; index++)
-            array[index] /= factor;
+            array[index] *= normalizationFactor;
 
         return array;
     }
@@ -66,7 +66,7 @@ public class Diffusor {
             cumulativeDensity = current;
         }
 
-        return normalize(result);
+        return result;
     }
 
     Indexor[] buildIndexors(DoubleGrid grid) {
@@ -83,8 +83,8 @@ public class Diffusor {
             TraversalStrategy strategy = new EightfoldSymmetryTraversalStrategy(axis, false);
             TraversalStrategy reflected = new EightfoldSymmetryTraversalStrategy(axis, true);
 
-            indexors[index++] = new IndexorImpl(grid, edgeLength, rowOffset, range, strategy);
-            indexors[index++] = new IndexorImpl(grid, edgeLength, rowOffset, range, reflected);
+            indexors[index++] = new Indexor(grid, edgeLength, rowOffset, range, strategy);
+            indexors[index++] = new Indexor(grid, edgeLength, rowOffset, range, reflected);
         }
 
         return indexors;
@@ -99,15 +99,30 @@ public class Diffusor {
 
         indexors[0].setValue(densityHistogram[0] * densityHistogram[0]);
 
+        if (indexors[0].rangeDepleted()) {
+
+            normalize(grid.grid);
+
+            return;
+        }
+
+        for (Indexor indexor : indexors)
+            indexor.advance();
+
+
         while (! indexors[0].rangeDepleted()) {
 
-            int x = indexors[0].getX() - center;
-            int y = indexors[0].getY() - center;
+            int x = Math.abs(indexors[0].x - center);
+            int y = Math.abs(indexors[0].y - center);
 
             double density = densityHistogram[x] * densityHistogram[y];
 
-            for (int index = 0; index < indexors.length; index++)
-                indexors[index].setValue(density);
+            for (Indexor indexor : indexors) {
+                indexor.setValue(density);
+                indexor.advance();
+            }
         }
+
+        normalize(grid.grid);
     }
 }

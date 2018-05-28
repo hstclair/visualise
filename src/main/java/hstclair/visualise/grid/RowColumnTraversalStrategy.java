@@ -26,7 +26,7 @@ public class RowColumnTraversalStrategy implements TraversalStrategy {
     @Override
     public boolean done(Indexor indexor) {
 
-        return indexor.x + 1 >= xMax && indexor.y + 1 >= yMax;
+        return indexor.x >= xMax && indexor.y >= yMax;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class RowColumnTraversalStrategy implements TraversalStrategy {
         indexor.index += indexor.rowLength;
         indexor.y++;
 
-        if (indexor.y >= yMax) {
+        if (indexor.y > yMax) {
             indexor.x++;
             indexor.y = yMin;
             indexor.index = indexor.indexOf(indexor.x, indexor.y);
