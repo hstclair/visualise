@@ -2,13 +2,15 @@ package hstclair.visualise.statistics;
 
 public class StandardNormalDistribution {
 
-    static final int ContinuedFractionIterationCount = 11;
+    static final int Iterations = 20;
 
-    static final int MaclaurinCdfCoefficientCount = 11;
+    static final int ContinuedFractionIterationCount = Iterations;
 
-    static final int MaclaurinHalfErfCoefficientCount = 11;
+    static final int MaclaurinCdfCoefficientCount = Iterations;
 
-    static final int AsymptoticCdfCoefficientCount = 11;
+    static final int MaclaurinHalfErfCoefficientCount = Iterations;
+
+    static final int AsymptoticCdfCoefficientCount = Iterations;
 
     static final double tau = 2*Math.PI;
 
@@ -20,6 +22,8 @@ public class StandardNormalDistribution {
 
     static final double sqrtPiOverTwo = Math.sqrt(Math.PI) / 2;
 
+    static final double sqrtHalfPi = Math.sqrt(Math.PI / 2);
+
     static final double oneOverSqrtTwoPi = 1d / Math.sqrt(2 * Math.PI);
 
     static final double[] halfErfMaclaurinCoefficients = buildHalfErfMaclaurinCoefficients(MaclaurinHalfErfCoefficientCount);
@@ -30,6 +34,7 @@ public class StandardNormalDistribution {
 
 
     // implementation based on formulas at http://mathworld.wolfram.com/NormalDistributionFunction.html
+    // and at http://demonstrations.wolfram.com/NormalDistributionWithContinuedFractions/
 
 
     public StandardNormalDistribution() {
@@ -108,6 +113,19 @@ public class StandardNormalDistribution {
         return 1 - 1/(Math.sqrt(2*pi))* (Math.sqrt(pi/2) - Math.exp(-0.5 * Math.pow(x,2))*x/(1 +res));
     }
 
+    public static double shentonAlt(final double x,final int steps) {
+        double res=0;
+
+        double xSquared = x * x;
+
+        double sign[] = { 1d, -1d};
+
+        for (int i = steps; i > 0; i--)
+            res = sign[i & 1] * i * xSquared / (((i << 1 ) + 1) + res);
+
+        return 1 - oneOverSqrtTwoPi * (sqrtHalfPi - Math.exp(-0.5 * xSquared)*x/(1 +res));
+    }
+
     public static double contracted(final double x,final int steps) {
 
         double xSquared = x*x;
@@ -137,12 +155,12 @@ public class StandardNormalDistribution {
         double res=0;
         for (int i = steps-1; i > -1; i--) {
 
-            double iSquared = i*i;
             double fourI = i << 2;
 
-            res = ((2*(27 + 57*i + 38*iSquared + 8*i*iSquared))*xFourth/(5 + fourI))/((63 + 64*i + 16*iSquared)-((7 + 4*i) *xSquared/(5 + fourI)) + res);
+            res = ((2*(27 + i * (57 + i * (38 + (i << 3) ))))*xFourth/(5 + fourI))/((63 + i * (64 + (i << 4)) )-((7 + fourI) *xSquared/(5 + fourI)) + res);
         }
-        return 1 -  oneOverSqrtTwoPi * (sqrtPiOverTwo - Math.exp(-0.5 * xSquared)*x/(1 -5*xSquared/(15 + 2*xSquared+res)));
+
+        return 1 - oneOverSqrtTwoPi * (sqrtHalfPi - Math.exp(-0.5 * xSquared)*x/(1 -5*xSquared/(15 + 2*xSquared+res)));
     }
 
 

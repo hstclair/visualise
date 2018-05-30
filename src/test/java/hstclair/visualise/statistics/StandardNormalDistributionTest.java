@@ -151,6 +151,93 @@ public class StandardNormalDistributionTest {
 
     }
 
+    @Test
+    public void compareContractedvsAlt() {
+
+        StandardNormalDistribution distribution = new StandardNormalDistribution();
+
+        double[] x = new double[] {
+                0d,
+                .2d,
+                .4d,
+                .6d,
+                .8d,
+                1d,
+                1.2d,
+                1.4d,
+                1.6d,
+                1.8d,
+                2d
+        };
+
+        double[] nist = new double[] {
+                .5d,
+                .57926,
+                .65542,
+                .72575,
+                .78814,
+                .84134,
+                .88493,
+                .91924,
+                .94520,
+                .96407,
+                .97725
+        };
+
+        System.out.println("x        : nist     -  contracted, contractedAlt, delta");
+
+        for (int index = 0; index < x.length; index ++) {
+            double contracted = StandardNormalDistribution.contracted(x[index], 20);
+            double contractedAlt = StandardNormalDistribution.contractedAlt(x[index], 20);
+
+            System.out.printf("%1$f : %2$f -   %3$f,       %4$f, %5$f\n", x[index], nist[index], contracted, contractedAlt, contracted - contractedAlt);
+        }
+
+    }
+
+    @Test
+    public void compareShentonvsAlt() {
+
+        StandardNormalDistribution distribution = new StandardNormalDistribution();
+
+        double[] x = new double[] {
+                0d,
+                .2d,
+                .4d,
+                .6d,
+                .8d,
+                1d,
+                1.2d,
+                1.4d,
+                1.6d,
+                1.8d,
+                2d
+        };
+
+        double[] nist = new double[] {
+                .5d,
+                .57926,
+                .65542,
+                .72575,
+                .78814,
+                .84134,
+                .88493,
+                .91924,
+                .94520,
+                .96407,
+                .97725
+        };
+
+        System.out.println("x        : nist     -   shenton, shenton Alt,    delta, delta vs Nist");
+
+        for (int index = 0; index < x.length; index ++) {
+            double shenton = StandardNormalDistribution.shenton(x[index], 20);
+            double shentonAlt = StandardNormalDistribution.shentonAlt(x[index], 20);
+
+            System.out.printf("%1$f : %2$f -  %3$f,    %4$f, %5$f,   %6$f\n", x[index], nist[index], shenton, shentonAlt, shenton - shentonAlt, nist[index] - shentonAlt);
+        }
+
+    }
 
 
 }
