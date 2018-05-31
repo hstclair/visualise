@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import javax.swing.text.SimpleAttributeSet;
 
+import java.util.Random;
+
 import static org.junit.Assert.assertEquals;
 
 public class StandardNormalDistributionTest {
@@ -108,45 +110,18 @@ public class StandardNormalDistributionTest {
 
         StandardNormalDistribution distribution = new StandardNormalDistribution();
 
-        double[] x = new double[] {
-                0d,
-                .2d,
-                .4d,
-                .6d,
-                .8d,
-                1d,
-                1.2d,
-                1.4d,
-                1.6d,
-                1.8d,
-                2d
-        };
-
-        double[] nist = new double[] {
-                .5d,
-                .57926,
-                .65542,
-                .72575,
-                .78814,
-                .84134,
-                .88493,
-                .91924,
-                .94520,
-                .96407,
-                .97725
-        };
 
         System.out.println("x        : expected -  density, maclaurin, contracted, fraction,  shenton, asymptotic");
 
-        for (int index = 0; index < x.length; index ++) {
-            double maclaurin = distribution.cumulativeDensityFunctionMaclaurin(x[index]) + .5;
-            double asymptotic = distribution.cumulativeDensityFunctionAsymptoticSeries(x[index]);
-            double continuedFraction = distribution.cumulativeDensityFunctionContinuedFraction(x[index]);
-            double contracted = StandardNormalDistribution.contracted(x[index], 20);
-            double density = distribution.densityFunction(x[index]) + .5;
-            double shenton = StandardNormalDistribution.shenton(x[index], 20);
+        for (double x = 0; x <= 4; x += .01) {
+            double maclaurin = distribution.cumulativeDensityFunctionMaclaurin(x) + .5;
+            double asymptotic = distribution.cumulativeDensityFunctionAsymptoticSeries(x);
+            double continuedFraction = distribution.cumulativeDensityFunctionContinuedFraction(x);
+            double contracted = StandardNormalDistribution.contracted(x, 20);
+            double density = distribution.densityFunction(x) + .5;
+            double shenton = StandardNormalDistribution.shenton(x, 20);
 
-            System.out.printf("%1$f : %2$f - %3$f,  %4$f,   %5$f, %6$f, %7$f, %8$f\n", x[index], nist[index], density, maclaurin, contracted, continuedFraction, shenton, asymptotic);
+            System.out.printf("%1$f : %2$f - %3$f,  %4$f,   %5$f, %6$f, %7$f, %8$f\n", x, StandardNormalDistribution.nist(x), density, maclaurin, contracted, continuedFraction, shenton, asymptotic);
         }
 
     }
@@ -156,41 +131,14 @@ public class StandardNormalDistributionTest {
 
         StandardNormalDistribution distribution = new StandardNormalDistribution();
 
-        double[] x = new double[] {
-                0d,
-                .2d,
-                .4d,
-                .6d,
-                .8d,
-                1d,
-                1.2d,
-                1.4d,
-                1.6d,
-                1.8d,
-                2d
-        };
 
-        double[] nist = new double[] {
-                .5d,
-                .57926,
-                .65542,
-                .72575,
-                .78814,
-                .84134,
-                .88493,
-                .91924,
-                .94520,
-                .96407,
-                .97725
-        };
+        System.out.println("x        : nist     -  contracted, contractedAlt,    delta, delta vs nist");
 
-        System.out.println("x        : nist     -  contracted, contractedAlt, delta");
+        for (double x = 0; x <= 4; x += .01) {
+            double contracted = StandardNormalDistribution.contracted(x, 100);
+            double contractedAlt = StandardNormalDistribution.contractedAlt(x, 100);
 
-        for (int index = 0; index < x.length; index ++) {
-            double contracted = StandardNormalDistribution.contracted(x[index], 20);
-            double contractedAlt = StandardNormalDistribution.contractedAlt(x[index], 20);
-
-            System.out.printf("%1$f : %2$f -   %3$f,       %4$f, %5$f\n", x[index], nist[index], contracted, contractedAlt, contracted - contractedAlt);
+            System.out.printf("%1$f : %2$f -   %3$f,       %4$f, %5$f,    %6$f\n", x, StandardNormalDistribution.nist(x), contracted, contractedAlt, contracted - contractedAlt, StandardNormalDistribution.nist(x) - contractedAlt);
         }
 
     }
@@ -200,44 +148,92 @@ public class StandardNormalDistributionTest {
 
         StandardNormalDistribution distribution = new StandardNormalDistribution();
 
-        double[] x = new double[] {
-                0d,
-                .2d,
-                .4d,
-                .6d,
-                .8d,
-                1d,
-                1.2d,
-                1.4d,
-                1.6d,
-                1.8d,
-                2d
-        };
-
-        double[] nist = new double[] {
-                .5d,
-                .57926,
-                .65542,
-                .72575,
-                .78814,
-                .84134,
-                .88493,
-                .91924,
-                .94520,
-                .96407,
-                .97725
-        };
-
         System.out.println("x        : nist     -   shenton, shenton Alt,    delta, delta vs Nist");
 
-        for (int index = 0; index < x.length; index ++) {
-            double shenton = StandardNormalDistribution.shenton(x[index], 20);
-            double shentonAlt = StandardNormalDistribution.shentonAlt(x[index], 20);
+        for (double x = 0; x <= 4; x += .02) {
+            double shenton = StandardNormalDistribution.shenton(x, 100);
+            double shentonAlt = StandardNormalDistribution.shentonAlt(x, 100);
 
-            System.out.printf("%1$f : %2$f -  %3$f,    %4$f, %5$f,   %6$f\n", x[index], nist[index], shenton, shentonAlt, shenton - shentonAlt, nist[index] - shentonAlt);
+            System.out.printf("%1$f : %2$f -  %3$f,    %4$f, %5$f,   %6$f\n", x, StandardNormalDistribution.nist(x), shenton, shentonAlt, shenton - shentonAlt, StandardNormalDistribution.nist(x) - shentonAlt);
         }
 
     }
 
+    @Test
+    public void testShentonAltPerformance() {
+
+        long nanos = System.nanoTime();
+
+        double val = 0;
+
+        for (int count = 0; count < 1000000; count++) {
+
+            double x = StandardNormalDistribution.shentonAlt(val, 10);
+
+            val += .000001;
+        }
+
+        nanos = System.nanoTime() - nanos;
+
+        System.out.printf("ShentonAlt:    %1$d nanos elapsed\n", nanos);
+    }
+
+
+    @Test
+    public void testShentonPerformance() {
+
+        long nanos = System.nanoTime();
+
+        double val = 0;
+
+        for (int count = 0; count < 1000000; count++) {
+
+            double x = StandardNormalDistribution.shenton(val, 10);
+
+            val += .000001;
+        }
+
+        nanos = System.nanoTime() - nanos;
+
+        System.out.printf("Shenton:       %1$d nanos elapsed\n", nanos);
+    }
+
+    @Test
+    public void testContractedAltPerformance() {
+
+        long nanos = System.nanoTime();
+
+        double val = 0;
+
+        for (int count = 0; count < 1000000; count++) {
+
+            double x = StandardNormalDistribution.contractedAlt(val, 10);
+
+            val += .000001;
+        }
+
+        nanos = System.nanoTime() - nanos;
+
+        System.out.printf("ContractedAlt: %1$d nanos elapsed\n", nanos);
+    }
+
+    @Test
+    public void testContractedPerformance() {
+
+        long nanos = System.nanoTime();
+
+        double val = 0;
+
+        for (int count = 0; count < 1000000; count++) {
+
+            double x = StandardNormalDistribution.contracted(val, 10);
+
+            val += .000001;
+        }
+
+        nanos = System.nanoTime() - nanos;
+
+        System.out.printf("Contracted:    %1$d nanos elapsed\n", nanos);
+    }
 
 }
