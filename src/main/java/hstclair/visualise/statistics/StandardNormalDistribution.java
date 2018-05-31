@@ -455,7 +455,14 @@ public class StandardNormalDistribution {
     // and at http://demonstrations.wolfram.com/NormalDistributionWithContinuedFractions/
 
 
+    int steps;
+
     public StandardNormalDistribution() {
+        steps = Iterations;
+    }
+
+    public StandardNormalDistribution(int steps) {
+        this.steps = steps;
     }
 
     public double densityFunction(double x) {
@@ -464,31 +471,22 @@ public class StandardNormalDistribution {
 
 
     public double cumulativeDensityFunction(double z) {
-        return shentonAlt(z, 20);
+
+        if (z == Double.NEGATIVE_INFINITY)
+            return 0;
+
+        if (z == Double.POSITIVE_INFINITY)
+            return 1;
+
+        if (z == Double.MIN_VALUE)
+            return 0;
+
+        if (z == Double.MAX_VALUE)
+            return 1;
+
+        return shentonAlt(z, steps);
     }
 
-//    public double cumulativeDensityFunction(double z) {
-//
-//        double absZ = Math.abs(z);
-//
-//        if (absZ < 1d)
-//            return cumulativeDensityFunctionMaclaurin(z);
-//
-//        if (z < -8d) return 0d;
-//        if (z > 8d) return  1d;
-//
-//        double sum = 0d;
-//        double term = z;
-//        double zSquared = z * z;
-//
-//        for (int index = 3; sum + term != sum; index+=2) {
-//            sum += term;
-//            term *= zSquared / index;
-//        }
-//
-//        return 0.5 + sum * densityFunction(z);
-//    }
-//
     public double halfErf(double x) {
 
         double result = halfErfMaclaurinCoefficients[0];
@@ -524,13 +522,19 @@ public class StandardNormalDistribution {
 
     public static double nist(double x) {
 
+        if (x < -4)
+            return 0;
+
+        if (x < 0)
+            return .5d - nistValues[ (int) (-x * 100 + .5d)];
+
         if (x > 4)
             return 1;
 
         if (x < 0)
             return .5;
 
-        int index = (int) (x * 100);
+        int index = (int) (x * 100 + .5d);
 
         return nistValues[index] + .5;
     }
@@ -543,17 +547,28 @@ public class StandardNormalDistribution {
         return 1 - 1/(Math.sqrt(2*pi))* (Math.sqrt(pi/2) - Math.exp(-0.5 * Math.pow(x,2))*x/(1 +res));
     }
 
-    public static double shentonAlt(final double x,final int steps) {
-        double res=0;
+    public static double shentonAlt(double x, int steps) {
 
-        double xSquared = x * x;
+        double res = 0;
 
-        double sign[] = { 1d, -1d};
+        if (x < 6) {
+            double xSquared = x * x;
 
-        for (int i = steps; i > 0; i--)
-            res = sign[i & 1] * i * xSquared / (((i << 1 ) + 1) + res);
+            double sign[] = {1d, -1d};
 
-        return 1 - oneOverSqrtTwoPi * (sqrtHalfPi - Math.exp(-0.5 * xSquared)*x/(1 +res));
+            for (int i = steps; i > 0; i--) {
+
+                if (res == Double.POSITIVE_INFINITY)
+                    return (x > 0) ? 1 : 0;
+
+                res = sign[i & 1] * xSquared * i / (1 + res + (i << 1));
+            }
+
+            res = 1 - oneOverSqrtTwoPi * (sqrtHalfPi - Math.exp(-0.5 * xSquared) * x / (1 + res));
+        } else
+            res = 1;
+
+        return res;
     }
 
     public static double contracted(final double x,final int steps) {

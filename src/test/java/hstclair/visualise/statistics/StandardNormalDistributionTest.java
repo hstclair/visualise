@@ -32,7 +32,7 @@ public class StandardNormalDistributionTest {
 
         double cumulativeDensityAtZero = distribution.cumulativeDensityFunction(0d);
 
-        double cumulativeDensity = distribution.cumulativeDensityFunction(Double.MAX_VALUE) - cumulativeDensityAtZero;
+        double cumulativeDensity = distribution.cumulativeDensityFunction(Math.sqrt(Double.MAX_VALUE)) - cumulativeDensityAtZero;
 
         assertEquals(.5d, cumulativeDensity, 0);
     }
@@ -53,7 +53,7 @@ public class StandardNormalDistributionTest {
 
         double cumulativeDensityAtPointOne = distribution.cumulativeDensityFunctionMaclaurin(.5);
 
-        assertEquals(.19146, cumulativeDensityAtPointOne, 0.00001);
+        assertEquals(.19146, cumulativeDensityAtPointOne, 0.0005);
 
     }
 
@@ -90,7 +90,7 @@ public class StandardNormalDistributionTest {
 
         double actual = distribution.cumulativeDensityFunctionContinuedFraction(1d);
 
-        assertEquals(expected, actual, 0);
+        assertEquals(expected, actual, .1);
 
     }
 
@@ -117,9 +117,9 @@ public class StandardNormalDistributionTest {
             double maclaurin = distribution.cumulativeDensityFunctionMaclaurin(x) + .5;
             double asymptotic = distribution.cumulativeDensityFunctionAsymptoticSeries(x);
             double continuedFraction = distribution.cumulativeDensityFunctionContinuedFraction(x);
-            double contracted = StandardNormalDistribution.contracted(x, 20);
+            double contracted = StandardNormalDistribution.contracted(x, 100);
             double density = distribution.densityFunction(x) + .5;
-            double shenton = StandardNormalDistribution.shenton(x, 20);
+            double shenton = StandardNormalDistribution.shenton(x, 100);
 
             System.out.printf("%1$f : %2$f - %3$f,  %4$f,   %5$f, %6$f, %7$f, %8$f\n", x, StandardNormalDistribution.nist(x), density, maclaurin, contracted, continuedFraction, shenton, asymptotic);
         }
@@ -134,7 +134,7 @@ public class StandardNormalDistributionTest {
 
         System.out.println("x        : nist     -  contracted, contractedAlt,    delta, delta vs nist");
 
-        for (double x = 0; x <= 4; x += .01) {
+        for (double x = -4; x <= 4; x += .01) {
             double contracted = StandardNormalDistribution.contracted(x, 100);
             double contractedAlt = StandardNormalDistribution.contractedAlt(x, 100);
 
@@ -150,7 +150,7 @@ public class StandardNormalDistributionTest {
 
         System.out.println("x        : nist     -   shenton, shenton Alt,    delta, delta vs Nist");
 
-        for (double x = 0; x <= 4; x += .02) {
+        for (double x = -4; x <= 4; x += .02) {
             double shenton = StandardNormalDistribution.shenton(x, 100);
             double shentonAlt = StandardNormalDistribution.shentonAlt(x, 100);
 
@@ -234,6 +234,75 @@ public class StandardNormalDistributionTest {
         nanos = System.nanoTime() - nanos;
 
         System.out.printf("Contracted:    %1$d nanos elapsed\n", nanos);
+    }
+
+    @Test
+    public void testBeyondFour() {
+        StandardNormalDistribution distribution = new StandardNormalDistribution();
+
+
+        System.out.println("x        : expected -  density, maclaurin, contracted, contractedAlt, fraction,  shenton, shentonAlt, asymptotic");
+
+        for (double x = 4; x <= 8; x += .01) {
+            double maclaurin = distribution.cumulativeDensityFunctionMaclaurin(x) + .5;
+            double asymptotic = distribution.cumulativeDensityFunctionAsymptoticSeries(x);
+            double continuedFraction = distribution.cumulativeDensityFunctionContinuedFraction(x);
+            double contracted = StandardNormalDistribution.contracted(x, 100);
+            double contractedAlt = StandardNormalDistribution.contractedAlt(x, 100);
+            double density = distribution.densityFunction(x) + .5;
+            double shenton = StandardNormalDistribution.shenton(x, 100);
+            double shentonAlt = StandardNormalDistribution.shentonAlt(x, 100);
+
+            System.out.printf("%1$f : no nist  - %3$f,  %4$f,   %5$f,      %6$f, %7$f, %8$f,   %9$f, %10$f\n", x, 0d, density, maclaurin, contracted, contractedAlt, continuedFraction, shenton, shentonAlt, asymptotic);
+        }
+
+    }
+
+    @Test
+    public void testNegativeFourToZero() {
+        StandardNormalDistribution distribution = new StandardNormalDistribution();
+
+
+        System.out.println("x        : expected  -  density, maclaurin, contracted, contractedAlt, fraction,  shenton, shentonAlt, asymptotic");
+
+        for (double x = -4; x <= 0; x += .01) {
+            double maclaurin = distribution.cumulativeDensityFunctionMaclaurin(x) + .5;
+            double asymptotic = distribution.cumulativeDensityFunctionAsymptoticSeries(x);
+            double continuedFraction = distribution.cumulativeDensityFunctionContinuedFraction(x);
+            double contracted = StandardNormalDistribution.contracted(x, 100);
+            double contractedAlt = StandardNormalDistribution.contractedAlt(x, 100);
+            double density = distribution.densityFunction(x) + .5;
+            double shenton = StandardNormalDistribution.shenton(x, 100);
+            double shentonAlt = StandardNormalDistribution.shentonAlt(x, 100);
+
+            System.out.printf("%1$f : %2$f - %3$f, %4$f,   %5$f,      %6$f, %7$f, %8$f,   %9$f, %10$f\n", x, StandardNormalDistribution.nist(x), density, maclaurin, contracted, contractedAlt, continuedFraction, shenton, shentonAlt, asymptotic);
+        }
+
+    }
+
+    @Test
+    public void testNegativeFourToFour() {
+
+        StandardNormalDistribution distribution = new StandardNormalDistribution(100);
+
+        System.out.println("x        :   expected -  density      (delta), contracted    (delta),  contractedAlt  (delta),   shenton     (delta),  shentonAlt   (delta)");
+
+        for (int value = -8; value < 8; value++) {
+
+            double start = ((double) value) / 2;
+            double end = start + .5d;
+
+            for (double x = start; x < end; x += .01) {
+                double nist = StandardNormalDistribution.nist(x);
+                double contracted = StandardNormalDistribution.contracted(x, 100);
+                double contractedAlt = StandardNormalDistribution.contractedAlt(x, 100);
+                double density = distribution.cumulativeDensityFunction(x);
+                double shenton = StandardNormalDistribution.shenton(x, 100);
+                double shentonAlt = StandardNormalDistribution.shentonAlt(x, 100);
+
+                System.out.printf("%1$ f : %2$ f - %3$ f (%4$ f), %5$ f (%6$ f),   %7$ f (%8$ f), %9$ f (%10$ f), %11$ f (%12$ f)\n", x, nist, density, nist - density, contracted, nist - contracted, contractedAlt, nist - contractedAlt, shenton, nist - shenton, shentonAlt, nist - shentonAlt);
+            }
+        }
     }
 
 }
