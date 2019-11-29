@@ -3,7 +3,7 @@ package hstclair.visualise.grid;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
-public class DoubleGrid {
+public class DoubleGrid implements Grid<Double> {
 
     public final int edgeLength;
 
@@ -15,7 +15,7 @@ public class DoubleGrid {
 
     public final int area;
 
-    public double[] grid;
+    public Double[] grid;
 
     public int[] rowOffset;
 
@@ -23,8 +23,8 @@ public class DoubleGrid {
         this.edgeLength = edgeLength;
         this.rowLength = edgeLength + (boundaryCell << 1);
         this.size = rowLength * rowLength;
-        this.grid = new double[size];
         this.area = edgeLength * edgeLength;
+        this.grid = new Double[size];
 
         rowOffset = new int[rowLength];
         int offset = 0;
@@ -35,15 +35,17 @@ public class DoubleGrid {
 
             offset += rowLength;
         }
+
+        clear();
     }
 
     public void clear() {
-        Arrays.fill(grid, 0);
+        Arrays.fill(grid, 0d);
     }
 
-    public void each(Consumer<Indexor> operation, TraversalRange traversalRange, TraversalStrategy traversalStrategy) {
+    public void each(Consumer<Indexor> operation, TraversalRange traversalRange, TraversalStrategyFactory traversalStrategyFactory) {
 
-        Indexor indexor = new Indexor(this, edgeLength, rowOffset, traversalRange, traversalStrategy);
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, traversalRange, traversalStrategyFactory);
 
         while (! indexor.rangeDepleted()) {
 
@@ -55,7 +57,7 @@ public class DoubleGrid {
 
     public void eachInnerColRow(Consumer<Indexor> operation) {
 
-        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.innerTraversal(edgeLength), new ColumnRowTraversalStrategy());
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.innerTraversal(edgeLength), new ColumnRowTraversalStrategyFactory());
 
         while (! indexor.rangeDepleted()) {
 
@@ -67,7 +69,7 @@ public class DoubleGrid {
 
     public void eachInnerRowCol( Consumer<Indexor> operation) {
 
-        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.innerTraversal(edgeLength), new RowColumnTraversalStrategy());
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.innerTraversal(edgeLength), new RowColumnTraversalStrategyFactory());
 
         while (! indexor.rangeDepleted()) {
 
@@ -79,7 +81,7 @@ public class DoubleGrid {
 
     public void eachOuterColRow(Consumer<Indexor> operation) {
 
-        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.fullTraversal(edgeLength), new ColumnRowTraversalStrategy());
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.fullTraversal(edgeLength), new ColumnRowTraversalStrategyFactory());
 
         while (! indexor.rangeDepleted()) {
 
@@ -91,7 +93,7 @@ public class DoubleGrid {
 
     public void eachOuterRowCol(Consumer<Indexor> operation) {
 
-        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.fullTraversal(edgeLength), new RowColumnTraversalStrategy());
+        Indexor indexor = new Indexor(this, edgeLength, rowOffset, TraversalRange.fullTraversal(edgeLength), new RowColumnTraversalStrategyFactory());
 
         while (! indexor.rangeDepleted()) {
 
@@ -106,19 +108,105 @@ public class DoubleGrid {
         return rowOffset[y + 1] + x + 1;
     }
 
-    public void set(int x, int y, double value) {
-        grid[index(x, y)] = value;
+    @Override
+    public int getOffsetX() {
+        return 0;
     }
 
-    public void add(int x, int y, double value) {
-        grid[index(x, y)] += value;
+    @Override
+    public int getOffsetY() {
+        return 0;
     }
 
-    public double get(int x, int y) {
+    @Override
+    public int getMaxX() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxY() {
+        return 0;
+    }
+
+    public boolean sameSize(int width, int height) {
+        return width == rowLength && height == rowLength;
+    }
+
+    @Override
+    public Double[] getArray() {
+        return grid;
+    }
+
+    @Override
+    public Double set(int x, int y, Double value) {
+        return grid[index(x, y)] = value;
+    }
+
+    @Override
+    public Double add(int x, int y, Double addend) {
+        return (grid[index(x, y)] += addend);
+    }
+
+    @Override
+    public Double get(int x, int y) {
         return grid[index(x, y)];
     }
 
-    public void add(DoubleGrid addend, double scale) {
-        Arrays.setAll(this.grid, x -> this.grid[x] + addend.grid[x] * scale );
+    public <V extends Number> V[] validateAndGetArray(Grid<V> other) {
+
+        if (! other.sameSize(rowLength, rowLength))
+            throw new IllegalArgumentException("Grids must be the same size");
+
+        V[] otherArray = other.getArray();
+
+        if (otherArray.length != grid.length)
+            throw new IllegalArgumentException("Arrays must be the same length");
+
+        return otherArray;
+    }
+
+    @Override
+    public <V extends Number> DoubleGrid sum(Grid<V> addend) {
+
+        V[] addendArray = validateAndGetArray(addend);
+
+        Arrays.setAll(this.grid, x -> this.grid[x] + addendArray[x].doubleValue() );
+
+        return this;
+    }
+
+    @Override
+    public <V extends Number> DoubleGrid sum(Grid<V> addend, Double scale) {
+
+        V[] addendArray = validateAndGetArray(addend);
+
+        Arrays.setAll(this.grid, x -> this.grid[x] + addendArray[x].doubleValue() * scale );
+
+        return this;
+    }
+
+    @Override
+    public Double minus(int x, int y, Double subtrahend) {
+        return grid[index(x, y)] -= subtrahend;
+    }
+
+    @Override
+    public <V extends Number> DoubleGrid difference(Grid<V> subtrahend) {
+
+        V[] subtrahendArray = validateAndGetArray(subtrahend);
+
+        Arrays.setAll(this.grid, x -> this.grid[x] + subtrahendArray[x].doubleValue() );
+
+        return this;
+    }
+
+    @Override
+    public <V extends Number> DoubleGrid difference(Grid<V> subtrahend, Double scale) {
+
+        V[] subtrahendArray = validateAndGetArray(subtrahend);
+
+        Arrays.setAll(this.grid, x -> this.grid[x] + subtrahendArray[x].doubleValue() * scale );
+
+        return this;
     }
 }

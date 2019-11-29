@@ -1,11 +1,7 @@
 package hstclair.visualise.component;
 
 import hstclair.visualise.Advector;
-import hstclair.visualise.AdvectorNewA;
-import hstclair.visualise.grid.ColumnRowTraversalStrategy;
 import hstclair.visualise.grid.DoubleGrid;
-import hstclair.visualise.grid.Indexor;
-import hstclair.visualise.grid.TraversalRange;
 
 public class AdvectorNew implements Advector {
 

@@ -28,9 +28,12 @@ public class VorticityConfinementFieldGenerator implements FieldGenerator {
         double dw_dx = indexor.lateralGradient(w);
         double dw_dy = indexor.verticalGradient(w);
 
+        Indexor fvcXIndexor = (Indexor) indexor.getAccessor(fvcX);
+        Indexor fvcYIndexor = (Indexor) indexor.getAccessor(fvcY);
+
         if (dw_dx == 0 && dw_dy == 0) {
-            indexor.setValue(fvcX, 0);
-            indexor.setValue(fvcY, 0);
+            fvcXIndexor.setValue(0);
+            fvcYIndexor.setValue(0);
             return;
         }
 
@@ -42,7 +45,7 @@ public class VorticityConfinementFieldGenerator implements FieldGenerator {
         double v = (indexor.verticalGradient(uField) - indexor.lateralGradient(vField)) * .5 / length;
 
         // N x w
-        indexor.setValue(fvcX, dw_dy * -v);
-        indexor.setValue(fvcY, dw_dx * v);
+        fvcXIndexor.setValue(dw_dy * -v);
+        fvcYIndexor.setValue(dw_dx * v);
     }
 }

@@ -1,6 +1,13 @@
 package hstclair.visualise.grid;
 
-public class Indexor {
+public class Indexor implements GridCursor, GridAccessor<Double> {
+
+
+    // TODO refactor to replace DoubleGrid with Grid<Double>
+    // TODO refactor to replace Indexor with GridAccessor
+    // TODO refactor to wrap GridAccessor in a BoundaryCondition-enforcing GridAccessor
+    // TODO refactor each computation step into a GridComputation (?)  => intent here is to drive toward a model that focuses on computation and is more agnostic to the type of traversal to be performed
+
 
     public DoubleGrid target;
 
@@ -23,19 +30,20 @@ public class Indexor {
 
     TraversalRange traversalRange;
 
+    TraversalStrategyFactory traversalStrategyFactory;
+
     TraversalStrategy traversalStrategy;
 
     Interpolator interpolatorAlt;
     Interpolator interpolator;
 
 
-    public Indexor(DoubleGrid target, int edgeLength, int[] rowOffset, TraversalRange traversalRange, TraversalStrategy traversalStrategy) {
+    public Indexor(DoubleGrid target, int edgeLength, int[] rowOffset, TraversalRange traversalRange, TraversalStrategyFactory traversalStrategyFactory) {
 
         this.target = target;
         this.edgeLength = edgeLength;
         this.rowLength = edgeLength + 2;
         this.traversalRange = traversalRange;
-        this.traversalStrategy = traversalStrategy;
 
         this.upperBoundary = 0;
         this.leftBoundary = .5;
@@ -46,13 +54,18 @@ public class Indexor {
 
         interpolatorAlt = new InterpolatorAlt(this);
         interpolator = new InterpolatorNew(this);
-        traversalStrategy.init(this);
+
+        this.traversalStrategyFactory = traversalStrategyFactory;
+
+        this.traversalStrategy = traversalStrategyFactory.create(this);
     }
 
-    public void setIndex(int index, int x, int y) {
+    public Indexor setIndex(int index, int x, int y) {
         this.index = index;
         this.x = x;
         this.y = y;
+
+        return this;
     }
 
     public boolean rangeDepleted() {
@@ -102,6 +115,57 @@ public class Indexor {
 
                 throw new IllegalArgumentException("Unknown orientation");
         }
+    }
+
+    @Override
+    public void incrementX() {
+        x++;
+        index++;
+    }
+
+    @Override
+    public void incrementY() {
+        y++;
+        index += rowLength;
+    }
+
+    @Override
+    public void decrementX() {
+        x--;
+        index--;
+    }
+
+    @Override
+    public void decrementY() {
+        y--;
+        index -= rowLength;
+    }
+
+    @Override
+    public int getCurrentX() {
+        return x;
+    }
+
+    @Override
+    public int getCurrentY() {
+        return y;
+    }
+
+    @Override
+    public <T extends Number> GridAccessor<T> getAccessor(Grid<T> grid) {
+
+        if (! (grid instanceof DoubleGrid))
+            throw new IllegalArgumentException("Indexor only supports DoubleGrid");
+
+        DoubleGrid that = (DoubleGrid) grid;
+
+        if (! that.sameSize(this.target.rowLength, this.target.rowLength))
+            throw new IllegalArgumentException("Grids must be the same size");
+
+        Indexor indexor = new Indexor(that, edgeLength, rowOffset, traversalRange, traversalStrategyFactory)
+                .setIndex(index, x, y);
+
+        return (GridAccessor<T>) indexor;
     }
 
     public void moveTo(CoordReference coordReference) {
@@ -243,69 +307,68 @@ public class Indexor {
         }
     }
 
-    public double getValue() {
+    @Override
+    public Double getValue() {
         return target.grid[index];
     }
 
-    public double getValue(DoubleGrid source) {
-        return source.grid[index];
+    @Override
+    public <V extends Number> Double getValue(Grid<V> source) {
+
+        return source.getArray()[index].doubleValue();
     }
 
-    public void setValue(double value) {
-        target.grid[index] = value;
+    @Override
+    public Double getValue(int xOffset, int yOffset) {
+        return null;
     }
 
-    public void setValue(DoubleGrid target, double value) {
-        target.grid[index] = value;
+    @Override
+    public Double setValue(double value) {
+        return(target.grid[index] = value);
     }
 
-    public void add(double value) {
-        target.grid[index] += value;
+    @Override
+    public Double addValue(double value) {
+        return(target.grid[index] += value);
     }
 
-    public void add(DoubleGrid target, double value) {
-        target.grid[index] += value;
+    @Override
+    public Double subtractValue(double value) {
+        return(target.grid[index] -= value);
     }
 
-    public void subtract(double value) {
-        target.grid[index] -= value;
-    }
-
-    public void subtract(DoubleGrid target, double value) {
-        target.grid[index] -= value;
-    }
-
-    public double above() {
-        return target.grid[index - rowLength];
-    }
-
-    public double above(DoubleGrid source) {
-        return source.grid[index - rowLength];
-    }
-
-    public double below() {
-        return target.grid[index + rowLength];
-    }
-
-    public double below(DoubleGrid source) {
-        return source.grid[index + rowLength];
-    }
-
-    public double left() {
-        return target.grid[index - 1];
-    }
-
-    public double left(DoubleGrid source) {
-        return source.grid[index - 1];
-    }
-
-    public double right() {
-        return target.grid[index + 1];
-    }
-
-    public double right(DoubleGrid source) {
-        return source.grid[index + 1];
-    }
+//    public double above() {
+//        return target.grid[index - rowLength];
+//    }
+//
+//    public double above(DoubleGrid source) {
+//        return source.grid[index - rowLength];
+//    }
+//
+//    public double below() {
+//        return target.grid[index + rowLength];
+//    }
+//
+//    public double below(DoubleGrid source) {
+//        return source.grid[index + rowLength];
+//    }
+//
+//    public double left() {
+//        return target.grid[index - 1];
+//    }
+//
+//    public double left(DoubleGrid source) {
+//        return source.grid[index - 1];
+//    }
+//
+//    public double right() {
+//        return target.grid[index + 1];
+//    }
+//
+//    public double right(DoubleGrid source) {
+//        return source.grid[index + 1];
+//    }
 
     public double lateralGradient() {
         return target.grid[index + 1] - target.grid[index - 1];

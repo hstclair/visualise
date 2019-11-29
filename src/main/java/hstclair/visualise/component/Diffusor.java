@@ -31,11 +31,13 @@ public class Diffusor {
     }
 
 
-    double[] normalize(double[] array) {
+    Double[] normalize(Double[] array) {
 
-        double sum = Arrays.stream(array).sum();
+        Double sum = Arrays.stream(array)
+                .mapToDouble(it -> it)
+                .sum();
 
-        double normalizationFactor = 1 / sum;
+        Double normalizationFactor = 1 / sum;
 
         for (int index = 0; index < array.length; index++)
             array[index] *= normalizationFactor;
@@ -80,11 +82,11 @@ public class Diffusor {
         Indexor[] indexors = new Indexor[Axis.values().length << 1];
 
         for (Axis axis : Axis.values()) {
-            TraversalStrategy strategy = new EightfoldSymmetryTraversalStrategy(axis, false);
-            TraversalStrategy reflected = new EightfoldSymmetryTraversalStrategy(axis, true);
+            TraversalStrategyFactory strategyFactory = new EightfoldSymmetryTraversalStrategyFactory(axis, false);
+            TraversalStrategyFactory reflectedFactory = new EightfoldSymmetryTraversalStrategyFactory(axis, true);
 
-            indexors[index++] = new Indexor(grid, edgeLength, rowOffset, range, strategy);
-            indexors[index++] = new Indexor(grid, edgeLength, rowOffset, range, reflected);
+            indexors[index++] = new Indexor(grid, edgeLength, rowOffset, range, strategyFactory);
+            indexors[index++] = new Indexor(grid, edgeLength, rowOffset, range, reflectedFactory);
         }
 
         return indexors;

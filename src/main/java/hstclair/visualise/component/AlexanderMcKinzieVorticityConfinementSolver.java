@@ -1,6 +1,6 @@
 package hstclair.visualise.component;
 
-import hstclair.visualise.grid.ColumnRowTraversalStrategy;
+import hstclair.visualise.grid.ColumnRowTraversalStrategyFactory;
 import hstclair.visualise.grid.DoubleGrid;
 import hstclair.visualise.VorticitySolver;
 import hstclair.visualise.grid.TraversalRange;
@@ -35,7 +35,7 @@ public class AlexanderMcKinzieVorticityConfinementSolver implements VorticitySol
 
         FieldGenerator vorticityConfinementFieldGenerator = new VorticityConfinementFieldGenerator(w, Fvc_x, Fvc_y, uField, vField);
 
-        w.each(vorticityConfinementFieldGenerator::generate, TraversalRange.customTraversal(2, 2, w.edgeLength - 1, w.edgeLength - 1), new ColumnRowTraversalStrategy());
+        w.each(vorticityConfinementFieldGenerator::generate, TraversalRange.customTraversal(2, 2, w.edgeLength - 1, w.edgeLength - 1), new ColumnRowTraversalStrategyFactory());
     }
 
 }

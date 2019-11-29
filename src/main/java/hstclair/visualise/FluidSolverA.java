@@ -301,7 +301,7 @@ public class FluidSolverA
         int size = uOld.size;
 
         // clear all input velocities for next frame
-        for (int i = 0; i < size; i++){ uOld.grid[i] = 0; vOld.grid[i] = 0; }
+        for (int i = 0; i < size; i++){ uOld.grid[i] = 0d; vOld.grid[i] = 0d; }
     }
 
 
@@ -323,7 +323,7 @@ public class FluidSolverA
         int size = densityOld.size;
 
         // clear input density array for next frame
-        for (int i = 0; i < size; i++) densityOld.grid[i] = 0;
+        for (int i = 0; i < size; i++) densityOld.grid[i] = 0d;
 
 //        meanDensity = 0;
 //        maxDensity = 0;
@@ -416,7 +416,7 @@ public class FluidSolverA
                 div.grid[index] = (x.grid[index+1] - x.grid[index-1]
                         + y.grid[index+rowLength] - y.grid[index-rowLength])
                         * negOneOverTwoN;
-                p.grid[index] = 0;
+                p.grid[index] = 0d;
             }
         }
 
@@ -532,7 +532,7 @@ public class FluidSolverA
     }
 
     public void swap(DoubleGrid oldGrid, DoubleGrid newGrid) {
-        double[] tmp = oldGrid.grid;
+        Double[] tmp = oldGrid.grid;
         oldGrid.grid = newGrid.grid;
         newGrid.grid = tmp;
     }

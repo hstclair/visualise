@@ -2,12 +2,11 @@ package hstclair.visualise.grid;
 
 public interface TraversalStrategy {
 
-
     /**
-     * prepare the indexor for traversal
-     * @param indexor the indexor that will be traversed
+     * Sync the provided indexor to the initial position for this TraversalStrategy
+     * @param indexor the indexor to be used
      */
-    void init(Indexor indexor);
+    TraversalStrategy initIndexor(Indexor indexor);
 
     /**
      * returns true if the indexor has reached the end of its range

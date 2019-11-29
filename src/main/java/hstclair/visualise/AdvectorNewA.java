@@ -113,8 +113,8 @@ public class AdvectorNewA implements Advector {
 
     public static class AdvectFunction {
 
-        double[] d;
-        double[] d0;
+        Double[] d;
+        Double[] d0;
 
         boolean reference;
         boolean validate;
@@ -129,7 +129,7 @@ public class AdvectorNewA implements Advector {
         double s1;
         double t1;
 
-        public AdvectFunction(double[] d, double[] d0) {
+        public AdvectFunction(Double[] d, Double[] d0) {
             this.d = d;
             this.d0 = d0;
         }
@@ -219,7 +219,7 @@ public class AdvectorNewA implements Advector {
         advectFunction.apply(index, index00, index01, index10, index11, s0, t0, s1, t1);
     }
 
-    public Double advectCoreNew(double[] du, double[] dv, double dt, int col, int rowNum, int index, AdvectFunction advectFunction) {
+    public Double advectCoreNew(Double[] du, Double[] dv, double dt, int col, int rowNum, int index, AdvectFunction advectFunction) {
 
         double dx = dt * du[index];
         double dy = dt * dv[index];
@@ -297,7 +297,7 @@ public class AdvectorNewA implements Advector {
         advect(b, d.grid, d0.grid, du.grid, dv.grid, dt);
     }
 
-    public void advect(int b, double[] d, double[] d0, double[] du, double[] dv, double dt) {
+    public void advect(int b, Double[] d, Double[] d0, Double[] du, Double[] dv, Double dt) {
         double dt0;
 
         AdvectFunction advectFunction = new AdvectFunction(d, d0);

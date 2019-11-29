@@ -20,8 +20,11 @@ public class CompressionCounterForceFieldGenerator {
 
     void generate(Indexor indexor) {
 
-        indexor.subtract(uField, halfN * indexor.lateralGradient());
-        indexor.subtract(vField, halfN * indexor.verticalGradient());
+        Indexor uFieldIndexor = (Indexor) indexor.getAccessor(uField);
+        Indexor vFieldIndexor = (Indexor) indexor.getAccessor(vField);
+
+        uFieldIndexor.subtractValue(halfN * indexor.lateralGradient());
+        vFieldIndexor.subtractValue(halfN * indexor.verticalGradient());
     }
 
 }

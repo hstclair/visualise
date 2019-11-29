@@ -2,6 +2,7 @@ package hstclair.visualise;
 
 import hstclair.visualise.component.*;
 import hstclair.visualise.grid.DoubleGrid;
+import hstclair.visualise.grid.Indexor;
 
 import java.util.Random;
 
@@ -147,8 +148,8 @@ public class FluidSolver
 //        }
 
         // add velocity that was input by mouse
-        u.add(uOld, dt);
-        v.add(vOld, dt);
+        u.sum(uOld, dt);
+        v.sum(vOld, dt);
 
         // add in vorticity confinement force
 
@@ -157,15 +158,15 @@ public class FluidSolver
 //        else
             vorticityConfinementSolver.solve(uOld, vOld, u, v);
 
-        u.add(uOld, dt);
-        v.add(vOld, dt);
+        u.sum(uOld, dt);
+        v.sum(vOld, dt);
 
         // add in buoyancy force
 //        if (useOldBuoyancy)
 //            fluidSolverA.buoyancy(vOld, density);
 //        else
             buoyancySolver.buoyancy(vOld, density);
-        v.add(vOld, dt);
+        v.sum(vOld, dt);
 
         // swapping arrays for economical mem use
         // and calculating diffusion in velocity.
@@ -214,7 +215,7 @@ public class FluidSolver
 
 
         // add density inputted by mouse
-        density.add(densityOld, dt);
+        density.sum(densityOld, dt);
         swapD();
 
         diffuse(0, density, densityOld, diffusion, dt);
